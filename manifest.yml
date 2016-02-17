@@ -7,3 +7,4 @@ applications:
   host: watson-entity-finder
   disk_quota: 1024M
   command: node app/app.js
+

@@ -1,6 +1,7 @@
 {
 	"name": "NodejsStarterApp",
 	"version": "0.0.1",
+<<<<<<< Upstream, based on 9aad068af7b282680b1eae236dc6965252e20782
 	"description": "A sample nodejs app for Bluemix",
 	"scripts": {
 		"start": "node app.js"
@@ -21,5 +22,18 @@
 	"repository": {},
 	"engines": {
 		"node": "0.12.x"
+=======
+    "private": true,
+	"scripts": {
+		"start": "node app.js"
+	},
+	"dependencies": {
+		"express": "4.13.x",
+		"cfenv": "1.0.x"
+	},
+	"repository": {},
+	"engines": {
+		"node": "4.2.x"
+>>>>>>> dc4d9ec Add starter application package
 	} 
 }
