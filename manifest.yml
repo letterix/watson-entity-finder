@@ -1,0 +1,9 @@
+applications:
+- path: .
+  memory: 256M
+  instances: 1
+  domain: mybluemix.net
+  name: watson-entity-finder
+  host: watson-entity-finder
+  disk_quota: 1024M
+  command: node app/app.js
