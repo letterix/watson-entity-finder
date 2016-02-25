@@ -10,8 +10,8 @@ var scopusController = require('./scopus.controller');
 module.exports = function(routes) {
 
     // fetch something from the controller
-    routes.get('/', function(request, response) {
-        scopusController.search()
+    routes.get('/:search', function(request, response) {
+        scopusController.search(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });

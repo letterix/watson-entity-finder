@@ -13,10 +13,10 @@ var errorHandler = require('../../handler/error.handler');
 var scopusSearchUrl = config.RESOURCE_SCOPUS_SEARCH_URL;
 var apiKey = config.RESOURCE_SCOPUS_API_KEY;
 
-exports.search = function() {
+exports.search = function(search) {
     var options = {
         resolveWithFullResponse: true,
-        uri: scopusSearchUrl + '?' + 'apiKey=' + apiKey + '&httpAccept=application/json' + '&query=wilsons',
+        uri: scopusSearchUrl + '?' + 'apiKey=' + apiKey + '&httpAccept=application/json' + '&query=' + search,
         method: 'GET',
         json: true,
         gzip: true
