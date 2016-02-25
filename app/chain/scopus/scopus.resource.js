@@ -57,3 +57,17 @@ exports.retrieveAuthor = function(search) {
         .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);    
 };
+
+exports.retrieveAbstract = function(search) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: scopusRetrieveAbstractUrl + '10.1016/j.anbehav.2015.12.020' + '?' + 'apiKey=' + apiKey + '&httpAccept=application/json',
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+    
+    return request(options)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);    
+};
