@@ -15,3 +15,7 @@ var errorHandler = require('../../handler/error.handler.js');
 exports.search = function(search) {
    return scopusResource.search(search);
 };
+
+exports.authorSearch = function(search) {
+   return scopusResource.authorSearch(search);
+};
