@@ -1,5 +1,5 @@
 {
     "RESOURCE_URL_WATSON": "http://some/url.com",    
     "RESOURCE_ALCHEMY_API_KEY": "9da318e13054c45454b95f3d9db450041f69a507",
-    "RESOURCE_ALCHEMY_URL": ""
+    "RESOURCE_ALCHEMY_URL": "http://gateway-a.watsonplatform.net/calls/url/URLGetRankedNamedEntities"
 }

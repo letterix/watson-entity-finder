@@ -16,11 +16,13 @@ var apikey = config.RESOURCE_ALCHEMY_API_KEY;
 exports.get = function() {
     var options = {
         resolveWithFullResponse: true,
-        uri: url + '?' + 'apiKey=' + apikey + '&outputMode=json' + '&url=' + url,
+        uri: url + '?' + 'apikey=' + apikey + '&outputMode=json' + '&url=https://en.wikipedia.org/wiki/Ancient_Rome',
         method: 'GET',
         json: true,
         gzip: true
     };
+    
+    console.log(options.uri);
     
     
     return request(options)
