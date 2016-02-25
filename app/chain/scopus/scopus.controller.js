@@ -12,6 +12,6 @@ var errorHandler = require('../../handler/error.handler.js');
 // DOES EXPORT
 // ====================================================
 
-exports.get = function() {
-    return scopusResource.get();
+exports.search = function() {
+    return scopusResource.search();
 };

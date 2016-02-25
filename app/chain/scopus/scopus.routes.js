@@ -11,7 +11,7 @@ module.exports = function(routes) {
 
     // fetch something from the controller
     routes.get('/', function(request, response) {
-        scopusController.get()
+        scopusController.search()
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
