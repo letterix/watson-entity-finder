@@ -12,6 +12,6 @@ var errorHandler = require('../../handler/error.handler.js');
 // DOES EXPORT
 // ====================================================
 
-exports.getNormalPromise = function(id) {
-    return alchemyResource.getById(id);
+exports.get = function() {
+    return alchemyResource.get();
 };
