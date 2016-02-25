@@ -14,6 +14,7 @@ var cfenv = require('cfenv');
 var watsonRoutes = require('./chain/watson/watson.routes')(express.Router());
 var googleRoutes = require('./chain/google/google.routes')(express.Router());
 var alchemyRoutes = require('./chain/alchemy/alchemy.routes')(express.Router());
+var scopusRoutes = require('./chain/scopus/scopus.routes')(express.Router());
 
 // create a new express server
 var app = express();
@@ -42,6 +43,7 @@ var appEnv = cfenv.getAppEnv();
 app.use('/api/watson', watsonRoutes);
 app.use('/api/alchemy', alchemyRoutes);
 app.use('/api/google', googleRoutes);
+app.use('/api/scopus', scopusRoutes);
 
 // serve the files out of ./public as our main files
 app.use(express.static(__dirname + '/public'));
