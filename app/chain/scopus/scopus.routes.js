@@ -26,3 +26,13 @@ module.exports = function(routes) {
 
     return routes;
 };
+
+module.exports = function(routes) {
+    routes.get('/retrieveAuthor/', function(request, response) {
+        scopusController.retrieveAuthor()
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    return routes;
+};
