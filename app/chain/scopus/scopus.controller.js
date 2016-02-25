@@ -22,3 +22,7 @@ exports.authorSearch = function(search) {
 exports.retrieveAuthor = function(search) {
    return scopusResource.retrieveAuthor(search);
 };
+
+exports.retrieveAbstract = function(search) {
+   return scopusResource.retrieveAbstract(search);
+};
