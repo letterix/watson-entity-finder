@@ -13,7 +13,7 @@ var errorHandler = require('../../handler/error.handler');
 var url = config.RESOURCE_ALCHEMY_URL;
 var apikey = config.RESOURCE_ALCHEMY_API_KEY;
 
-exports.getById = function(id) {
+exports.get = function() {
     var options = {
         resolveWithFullResponse: true,
         uri: url + '?' + 'apiKey=' + apikey + '&outputMode=json' + '&url=' + url,
