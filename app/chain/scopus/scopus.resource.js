@@ -33,7 +33,7 @@ exports.search = function(search) {
 exports.authorSearch = function(search) {
     var options = {
         resolveWithFullResponse: true,
-        uri: scopusSearchAuthorUrl + '?' + 'apiKey=' + apiKey + '&httpAccept=application/json' + '&query=' + search,
+        uri: scopusSearchAuthorUrl + '?' + 'apiKey=' + apiKey + '&httpAccept=application/json' + '&query=AUTHLASTNAME(King)%20and%20AUTHFIRST(W)%20and%20AFFIL(University)%20and%20AFFIL(Queensland)%20and%20AFFIL(Bishop%27s)',
         method: 'GET',
         json: true,
         gzip: true
