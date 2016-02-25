@@ -1,3 +1,10 @@
 {
-    "RESOURCE_URL_WATSON": "http://some/url.com"
+    "RESOURCE_URL_WATSON": "http://some/url.com",    
+    "RESOURCE_ALCHEMY_API_KEY": "9da318e13054c45454b95f3d9db450041f69a507",
+    "RESOURCE_ALCHEMY_URL": "",
+    "RESOURCE_SCOPUS_API_KEY": "0fa3758c6732da42117e1983ff7c4e10",
+    "RESOURCE_SCOPUS_SEARCH_URL": "http://api.elsevier.com/content/search/scopus",
+    "RESOURCE_SCOPUS_SEARCH_AUTHOR_URL": "http://api.elsevier.com/content/search/author",
+    "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
+    "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/"
 }
