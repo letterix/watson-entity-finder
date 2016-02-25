@@ -22,7 +22,6 @@ exports.get = function() {
         gzip: true
     };
     
-    
     return request(options)
         .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);
