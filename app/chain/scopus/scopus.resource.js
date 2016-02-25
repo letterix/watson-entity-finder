@@ -43,3 +43,17 @@ exports.authorSearch = function(search) {
         .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);    
 };
+
+exports.retrieveAuthor = function(search) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: scopusRetrieveAuthorUrl + '56218921200' + '?' + 'apiKey=' + apiKey + '&httpAccept=application/json',
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+    
+    return request(options)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);    
+};
