@@ -36,3 +36,13 @@ module.exports = function(routes) {
 
     return routes;
 };
+
+module.exports = function(routes) {
+    routes.get('/retrieveAbstract/', function(request, response) {
+        scopusController.retrieveAbstract()
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    return routes;
+};
