@@ -36,3 +36,19 @@ exports.get = function() {
         .catch(errorHandler.throwResourceError);
 
 };
+
+exports.getEntities = function(params) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri : url,
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);
+
+};
