@@ -9,15 +9,8 @@ var alchemyController = require('./alchemy.controller');
 
 module.exports = function(routes) {
 
-    // fetch something from the controller
+    // This just a hard coded test
     routes.get('/', function(request, response) {
-        alchemyController.get()
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
-
-    // fetch something from the controller
-    routes.get('/params', function(request, response) {
     
 	    var params = {
 	        "url": "https://en.wikipedia.org/wiki/Steve_Jobs", 
