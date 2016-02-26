@@ -6,5 +6,7 @@
     "RESOURCE_SCOPUS_SEARCH_URL": "http://api.elsevier.com/content/search/scopus",
     "RESOURCE_SCOPUS_SEARCH_AUTHOR_URL": "http://api.elsevier.com/content/search/author",
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
-    "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/"
+    "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/",
+    "RESOURCE_PUBMED_BASE_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
 }
+
