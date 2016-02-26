@@ -12,7 +12,7 @@ var Promise = require('bluebird');
  */
 exports.setUrlParamsForOptions = function(params, options) {
     return new Promise.reduce(Object.keys(params), function(acc, param) {
-        return acc + param + '=' + params[param] + '&';
+        return acc + encodeURIComponent(param)+ '=' + encodeURIComponent(params[param]) + '&';
     }, options.uri + '?')
     .then(function(res) {
         options.uri = res;
