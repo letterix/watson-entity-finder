@@ -16,6 +16,6 @@ exports.get = function() {
     return alchemyResource.get();
 };
 
-exports.getEntities = function(baseUrl, params) {
-    return alchemyResource.getEntities(baseUrl, params);
+exports.getEntities = function(params) {
+    return alchemyResource.getEntities(params);
 };
