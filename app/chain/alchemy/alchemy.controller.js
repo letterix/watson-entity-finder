@@ -15,3 +15,7 @@ var errorHandler = require('../../handler/error.handler.js');
 exports.get = function() {
     return alchemyResource.get();
 };
+
+exports.getEntities = function(baseUrl, params) {
+    return alchemyResource.getEntities(baseUrl, params);
+};
