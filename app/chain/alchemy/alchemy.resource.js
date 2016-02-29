@@ -12,8 +12,9 @@ var errorHandler = require('../../handler/error.handler');
 var utils  = require('../../utility/utils');
 
 var url = config.RESOURCE_ALCHEMY_URL;
+var textUrl = config.RESOURCE_ALCHEMY_TEXT_URL;
 
-exports.getEntities = function(params) {
+exports.getEntitiesByUrl = function(params) {
     var options = {
         resolveWithFullResponse: true,
         uri : url,
@@ -28,3 +29,20 @@ exports.getEntities = function(params) {
         .catch(errorHandler.throwResourceError);
 
 };
+
+exports.getEntitiesByText = function(params) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri : textUrl,
+        method: 'POST',
+        form: params,
+        gzip: true
+    };
+
+    return request(options)
+        .then(responseHandler.parsePost)
+        .catch(errorHandler.throwResourceError);
+
+};
+
+
