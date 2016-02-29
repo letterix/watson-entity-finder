@@ -96,7 +96,8 @@ exports.retrieveAbstract = function(search) {
         gzip: true
     };
     
-    return request(options)
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
         .then(responseHandler.parseGet)
-        .catch(errorHandler.throwResourceError);    
+        .catch(errorHandler.throwResourceError);  
 };
