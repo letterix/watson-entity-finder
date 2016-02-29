@@ -14,30 +14,18 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
-    return routes;
-};
-
-module.exports = function(routes) {
     routes.get('/author/:search', function(request, response) {
         scopusController.authorSearch(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
 
-    return routes;
-};
-
-module.exports = function(routes) {
     routes.get('/retrieveAuthor/:id', function(request, response) {
         scopusController.retrieveAuthor(request.params.id)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
 
-    return routes;
-};
-
-module.exports = function(routes) {
     routes.get('/retrieveAbstract/:title', function(request, response) {
         scopusController.retrieveAbstract(request.params.title)
             .then(responseHandler.sendJsonResponse(response))
