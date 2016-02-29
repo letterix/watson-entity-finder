@@ -28,6 +28,7 @@ exports.authorSearch = function(query) {
         'httpAccept': 'application/json',
         'query': query
     };
+
     return scopusResource.authorSearch(params);
 };
 
