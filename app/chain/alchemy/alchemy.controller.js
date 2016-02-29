@@ -11,7 +11,7 @@ var errorHandler = require('../../handler/error.handler.js');
 // DOES EXPORT
 // ====================================================
 
-exports.getEntities = function(url) {
+exports.getEntitiesByUrl = function(url) {
     var params = {
         "url": url,
         "apikey": "9da318e13054c45454b95f3d9db450041f69a507",

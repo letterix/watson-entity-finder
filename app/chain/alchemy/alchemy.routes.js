@@ -11,7 +11,7 @@ module.exports = function(routes) {
 
     // This just a hard coded test
     routes.get('/:url', function(request, response) {
-        alchemyController.getEntities(request.params.url)
+        alchemyController.getEntitiesByUrl(request.params.url)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
