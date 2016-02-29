@@ -8,5 +8,6 @@
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
     "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/",
     "RESOURCE_PUBMED_BASE_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
+    //"RESOURCE_PUBMED_S"
 }
 
