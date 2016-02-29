@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 
 /**
  * options: the options object needed for request-promise
- * params: the parameters to be passed as url params
+ * params: the parameters object to be passed as url params
  */
 exports.setUrlParamsForOptions = function(params, options) {
     return new Promise.reduce(Object.keys(params), function(acc, param) {
@@ -19,3 +19,15 @@ exports.setUrlParamsForOptions = function(params, options) {
         return options;
     })
 };
+
+
+// HELPER FUNCTIONS
+exports.printChain = function(res) {
+    console.log(res);
+    return res;
+};
+
+exports.replaceAll = function(string, find, replace) {
+    return string.split(find).join(replace);
+};
+
