@@ -29,7 +29,7 @@ module.exports = function(routes) {
 
 module.exports = function(routes) {
     routes.get('/retrieveAuthor/:id', function(request, response) {
-        scopusController.retrieveAuthor(request.params.id, request.query.search)
+        scopusController.retrieveAuthor(request.params.id)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
@@ -39,7 +39,7 @@ module.exports = function(routes) {
 
 module.exports = function(routes) {
     routes.get('/retrieveAbstract/:title', function(request, response) {
-        scopusController.retrieveAbstract(request.params.title, request.query.search)
+        scopusController.retrieveAbstract(request.params.title)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
