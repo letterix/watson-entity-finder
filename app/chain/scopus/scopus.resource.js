@@ -47,10 +47,10 @@ exports.authorSearch = function(params) {
         .catch(errorHandler.throwResourceError);
 };
 
-exports.retrieveAuthor = function(params) {
+exports.retrieveAuthor = function(id, params) {
     var options = {
         resolveWithFullResponse: true,
-        uri: scopusRetrieveAuthorUrl + '56218921200',
+        uri: scopusRetrieveAuthorUrl + id,
         method: 'GET',
         json: true,
         gzip: true
@@ -62,10 +62,10 @@ exports.retrieveAuthor = function(params) {
         .catch(errorHandler.throwResourceError);
 };
 
-exports.retrieveAbstract = function(params) {
+exports.retrieveAbstract = function(title, params) {
     var options = {
         resolveWithFullResponse: true,
-        uri: scopusRetrieveAbstractUrl + '10.1016/j.anbehav.2015.12.020',
+        uri: scopusRetrieveAbstractUrl + title,
         method: 'GET',
         json: true,
         gzip: true

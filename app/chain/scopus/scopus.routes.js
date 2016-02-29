@@ -19,7 +19,7 @@ module.exports = function(routes) {
 
 module.exports = function(routes) {
     routes.get('/author/:search', function(request, response) {
-        scopusController.authorSearch()
+        scopusController.authorSearch(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
@@ -28,8 +28,8 @@ module.exports = function(routes) {
 };
 
 module.exports = function(routes) {
-    routes.get('/retrieveAuthor/:search', function(request, response) {
-        scopusController.retrieveAuthor()
+    routes.get('/retrieveAuthor/:id', function(request, response) {
+        scopusController.retrieveAuthor(request.params.id, request.query.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
@@ -38,8 +38,8 @@ module.exports = function(routes) {
 };
 
 module.exports = function(routes) {
-    routes.get('/retrieveAbstract/:search', function(request, response) {
-        scopusController.retrieveAbstract()
+    routes.get('/retrieveAbstract/:title', function(request, response) {
+        scopusController.retrieveAbstract(request.params.title, request.query.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });

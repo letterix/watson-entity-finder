@@ -32,22 +32,23 @@ exports.authorSearch = function(query) {
     return scopusResource.authorSearch(params);
 };
 
-exports.retrieveAuthor = function(query) {
+exports.retrieveAuthor = function(id, query) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
         'httpAccept': 'application/json',
         'query': query
     };
 
-    return scopusResource.retrieveAuthor(params);
+    return scopusResource.retrieveAuthor(id, params);
 };
 
-exports.retrieveAbstract = function(query) {
+exports.retrieveAbstract = function(title, query) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
         'httpAccept': 'application/json',
         'query': query
     };
 
-    return scopusResource.retrieveAbstract(params);
+    // title ex: '10.1016/j.anbehav.2015.12.020'
+    return scopusResource.retrieveAbstract(title, params);
 };
