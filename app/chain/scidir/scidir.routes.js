@@ -14,5 +14,11 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/retrieveFullText/:pii', function(request, response) {
+        scidirController.retrieveFullText(request.params.pii)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     return routes;
 };
