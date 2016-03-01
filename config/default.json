@@ -8,5 +8,6 @@
     "RESOURCE_SCOPUS_SEARCH_AUTHOR_URL": "http://api.elsevier.com/content/search/author",
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
     "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/",
-    "RESOURCE_SCIDIR_SEARCH_URL": "http://api.elsevier.com/content/search/scidir"
+    "RESOURCE_SCIDIR_SEARCH_URL": "http://api.elsevier.com/content/search/scidir",
+    "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/"
 }
