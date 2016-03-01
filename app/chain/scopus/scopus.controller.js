@@ -50,3 +50,13 @@ exports.retrieveAbstract = function(title) {
     // title ex: '10.1016/j.anbehav.2015.12.020'
     return scopusResource.retrieveAbstract(title, params);
 };
+
+exports.retrieveArticle = function(eid) {
+    var params = {
+        'apikey': config.RESOURCE_SCOPUS_API_KEY,
+        'httpAccept': 'application/json'
+    };
+
+    // eid ex: '1-s2.0-S000334721500473X'
+    return scopusResource.retrieveArticle(eid, params);
+};
