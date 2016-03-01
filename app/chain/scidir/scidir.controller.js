@@ -20,3 +20,13 @@ exports.search = function(query) {
     };
     return scidirResource.search(params);
 }
+
+exports.retrieveFullText = function(pii) {
+    var params = {
+        'apikey': config.RESOURCE_SCOPUS_API_KEY,
+        'httpAccept': 'application/json'
+    };
+
+    // pii ex: 'S2210533615300356'
+    return scidirResource.retrieveFullText(pii, params);
+};
