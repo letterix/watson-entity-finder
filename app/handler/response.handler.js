@@ -36,6 +36,12 @@ exports.parseGet = function(response) {
         .then(parseBody);
 };
 
+exports.parseGetText = function(response) {
+    return checkResponse(response)
+        .then(checkStatusCode(200))
+        .then(parseTextBody);
+};
+
 exports.parseGetPolyQuery = function(response) {
     return checkResponse(response)
         .then(checkStatusCode(200))
@@ -110,6 +116,13 @@ function parseBody(response) {
     });
 }
 
+function parseTextBody(response) {
+    return new Promise(function(resolve) {
+        var body = response.body || "";
+        return resolve(body);
+    });
+}
+
 // SENDING
 // ============================================================================
 exports.sendErrorResponse = function(response) {
@@ -134,6 +147,12 @@ exports.sendToNext = function(next) {
 exports.sendJsonResponse = function(response) {
     return function(object) {
         return response.json(object);
+    };
+};
+
+exports.sendTextResponse = function(response) {
+    return function(object) {
+        return response.send(object);
     };
 };
 
