@@ -1,2 +1,5 @@
 /launchConfigurations
 /node_modules
+/.idea
+entityFinder.iml
+.project
