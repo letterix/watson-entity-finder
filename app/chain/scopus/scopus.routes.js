@@ -32,5 +32,11 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/retrieveArticle/:eid', function(request, response) {
+        scopusController.retrieveArticle(request.params.eid)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     return routes;
 };
