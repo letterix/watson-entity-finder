@@ -11,5 +11,4 @@
     "RESOURCE_PUBMED_BASE_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
     "RESOURCE_PUBMED_SEARCH_PMID": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&field=title&retmax=100&retmode=json&term=",
     "RESOURCE_PUBMED_FETCH_ABSTRACT_PMID": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=text&rettype=abstract&id="
-}a
-
+}
