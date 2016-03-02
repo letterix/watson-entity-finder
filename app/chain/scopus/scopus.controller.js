@@ -17,6 +17,9 @@ exports.search = function(query) {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
         'httpAccept': 'application/json',
         'query': query
+        // 'count': 
+        // 'date': ex. 2002-2007
+        // 'subj': ex. MEDI
     };
 
     return scopusResource.search(params);
