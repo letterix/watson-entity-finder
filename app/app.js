@@ -16,6 +16,7 @@ var alchemyRoutes = require('./chain/alchemy/alchemy.routes')(express.Router());
 var scopusRoutes = require('./chain/scopus/scopus.routes')(express.Router());
 var scidirRoutes = require('./chain/scidir/scidir.routes')(express.Router());
 var searchRoutes = require('./chain/search/search.routes')(express.Router());
+var rrRoutes = require('./chain/rr/rr.routes')(express.Router());
 
 // create a new express server
 var app = express();
@@ -46,6 +47,7 @@ app.use('/api/alchemy', alchemyRoutes);
 app.use('/api/scopus', scopusRoutes);
 app.use('/api/scidir', scidirRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/rr', rrRoutes);
 
 // serve the files out of ./public as our main files
 app.use(express.static(__dirname + '/public'));
