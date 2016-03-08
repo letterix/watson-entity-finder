@@ -12,7 +12,9 @@ module.exports = function(routes) {
     // fetch something from the controller
     routes.get('/:search', function(request, response) {
         return rrController.search(request.params.search)
-            .then(responseHandler.sendJsonResponse(response))
+            .then(function(res) {
+            	return response.send(res);
+            })
             .catch(responseHandler.sendErrorResponse(response));
     });
 
