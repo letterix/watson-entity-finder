@@ -77,10 +77,10 @@ exports.deleteCluster = function(cluster_id) {
     });
 };
 
-exports.rankerStatus = function() {
+exports.rankerStatus = function(ranker_id) {
     return new Promise(function (resolve, reject) {
         return retrieve_and_rank.rankerStatus({
-            ranker_id: rankerID
+            ranker_id: ranker_id
         }, function(err, response) {
             if (err) {
                 return reject(err);

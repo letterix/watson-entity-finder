@@ -45,8 +45,8 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response)); 
     });
 
-    routes.get('/rankerStatus', function(request, response) {
-        return rrController.rankerStatus() 
+    routes.get('/rankerStatus/:ranker_id', function(request, response) {
+        return rrController.rankerStatus(request.params.ranker_id) 
             .then(function(res) {
             	return response.send(res);
             })

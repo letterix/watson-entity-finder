@@ -30,8 +30,8 @@ exports.deleteCluster = function(cluster_id) {
     return rrResource.deleteCluster(cluster_id);
 };
 
-exports.rankerStatus = function() {
-    return rrResource.rankerStatus();
+exports.rankerStatus = function(ranker_id) {
+    return rrResource.rankerStatus(ranker_id);
 };
 
 exports.search = function(search) {
