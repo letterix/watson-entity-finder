@@ -14,8 +14,8 @@ var utils = require('../../utility/utils');
 // DOES EXPORT
 // ====================================================
 
-exports.createCluster = function(clusterName) {
-    return rrResource.createCluster(clusterName);
+exports.createCluster = function(clusterName, cluster_size) {
+    return rrResource.createCluster(clusterName, cluster_size);
 };
 
 exports.clusterStatus = function(cluster_id) {

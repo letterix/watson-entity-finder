@@ -24,10 +24,10 @@ var retrieve_and_rank = watson.retrieve_and_rank({
   version: 'v1'
 });
 
-exports.createCluster = function(clusterName) {
+exports.createCluster = function(clusterName, cluster_size) {
     return new Promise(function (resolve, reject) {
         return retrieve_and_rank.createCluster({
-            cluster_size: '1',
+            cluster_size: cluster_size,
             cluster_name: clusterName
         },
         function (err, response) {

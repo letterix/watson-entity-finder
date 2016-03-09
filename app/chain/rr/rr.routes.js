@@ -15,8 +15,9 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    // This function requires the query parameter "size" also 
     routes.get('/createCluster/:clusterName', function(request, response) {
-        return rrController.createCluster(request.params.clusterName)
+        return rrController.createCluster(request.params.clusterName, request.query.size)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
