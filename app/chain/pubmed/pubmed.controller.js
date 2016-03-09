@@ -14,15 +14,23 @@ var config = require('config');
 
 exports.searchPMID = function(query) {
     var params = {
+        'db': 'pubmed',
+        'field': 'title',
+        'retmax': '100',
+        'retmode': 'json',
+        'term': query
     };
 
-    return pubmedResource.searchPMID(query, params);
+    return pubmedResource.searchPMID(params);
 };
 
 exports.retrieveAbstract = function(pmid) {
     var params = {
+        'db': 'pubmed',
+        'retmode': 'text',
+        'rettype': 'abstract',
+        'id': pmid
     };
 
-    // title ex: '10.1016/j.anbehav.2015.12.020'
-    return pubmedResource.retrieveAbstract(pmid, params);
+    return pubmedResource.retrieveAbstract(params);
 };
