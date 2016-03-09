@@ -14,6 +14,7 @@ var watson = require('watson-developer-cloud');
 
 var username = config.RESOURCE_RR_USERNAME;
 var password = config.RESOURCE_RR_PASSWORD;
+
 var clusterID = config.RESOURCE_RR_CLUSTER_ID;
 var rankerID =  config.RESOURCE_RR_RANKER_ID;
 
@@ -24,13 +25,14 @@ var retrieve_and_rank = watson.retrieve_and_rank({
 });
 
 exports.createCluster = function(clusterName) {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         return retrieve_and_rank.createCluster({
             cluster_size: '1',
             cluster_name: clusterName
         },
         function (err, response) {
             if (err) {
+                console.log('error:', err);
                 return reject(err);
             }
             return resolve(response);
@@ -39,7 +41,7 @@ exports.createCluster = function(clusterName) {
 }
 
 exports.listClusters = function() {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         return retrieve_and_rank.listClusters({}, function(err, response) {
             if (err) {
                 return reject(err);
@@ -50,7 +52,7 @@ exports.listClusters = function() {
 };
 
 exports.clusterStatus = function() {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         return retrieve_and_rank.pollCluster({
             cluster_id: clusterID
         }, function(err, response) {
@@ -62,8 +64,21 @@ exports.clusterStatus = function() {
     });
 };
 
+exports.deleteCluster = function(cluster_id) {
+    return new Promise(function (resolve, reject) {
+        return retrieve_and_rank.deleteCluster({
+            cluster_id: cluster_id
+        }, function(err, response) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(response);
+        })
+    });
+};
+
 exports.rankerStatus = function() {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         return retrieve_and_rank.rankerStatus({
             ranker_id: rankerID
         }, function(err, response) {
