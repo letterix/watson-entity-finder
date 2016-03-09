@@ -16,10 +16,10 @@ var pubmedFetchAbstractByPMID = config.RESOURCE_PUBMED_FETCH_ABSTRACT_PMID;
 var pubmedSearchForPMID = config.RESOURCE_PUBMED_SEARCH_PMID;
 
 
-exports.searchPMID = function(params) {
+exports.searchPMID = function(search, params) {
     var options = {
         resolveWithFullResponse: true,
-        uri: pubmedSearchForPMID,
+        uri: pubmedSearchForPMID + search,
         method: 'GET',
         json: true,
         gzip: true
@@ -31,14 +31,14 @@ exports.searchPMID = function(params) {
         .catch(errorHandler.throwResourceError);
 };
 
-exports.retrieveAbstract = function(params) {
+exports.retrieveAbstract = function(pmid, params) {
     var options = {
         resolveWithFullResponse: true,
-        uri: pubmedFetchAbstractByPMID,
+        uri: pubmedFetchAbstractByPMID + pmid,
         method: 'GET',
         gzip: true
     };
-
+    console.log(pubmedFetchAbstractByPMID + pmid);
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
         .then(responseHandler.parseGetText)
