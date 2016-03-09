@@ -9,5 +9,10 @@
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
     "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/",
     "RESOURCE_SCIDIR_SEARCH_URL": "http://api.elsevier.com/content/search/scidir",
-    "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/"
+    "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/",
+    "RESOURCE_RR_USERNAME": "79bee3f5-adb2-4c50-bbbe-36bb1f8108eb",
+    "RESOURCE_RR_PASSWORD": "jyxsWaMWYJ4M",
+    "RESOURCE_RR_CLUSTER_ID": "scf460bfbc_5349_42de_ab1f_3bb06d1d5049",
+    "RESOURCE_RR_RANKER_ID": "42B250x11-rank-1714",
+    "RESOURCE_RR_SOLR_CLUSTER": "https://gateway.watsonplatform.net/retrieve-and-rank/api/v1/solr_clusters/"
 }
