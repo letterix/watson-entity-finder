@@ -6,12 +6,29 @@
  */
 var Promise = require('bluebird');
 var config = require('config');
+var rrResource = require('./rr.resource');
 var scidirController = require('../scidir/scidir.controller');
 var errorHandler = require('../../handler/error.handler.js');
 var utils = require('../../utility/utils');
 
 // DOES EXPORT
 // ====================================================
+
+exports.createCluster = function(clusterName) {
+    return rrResource.clusterStatus(clusterName);
+};
+
+exports.clusterStatus = function() {
+    return rrResource.clusterStatus();
+};
+
+exports.listClusters = function() {
+    return rrResource.listClusters();
+};
+
+exports.rankerStatus = function() {
+    return rrResource.rankerStatus();
+};
 
 exports.search = function(search) {
     return scidirController.search(search)
