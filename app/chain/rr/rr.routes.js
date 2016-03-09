@@ -9,9 +9,36 @@ var rrController = require('./rr.controller');
 
 module.exports = function(routes) {
 
-    // fetch something from the controller
-    routes.get('/:search', function(request, response) {
+    routes.get('/search/:search', function(request, response) {
         return rrController.search(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/createCluster/:clusterName', function(request, response) {
+        return rrController.createCluster(request.params.clusterName)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/listClusters', function(request, response) {
+        return rrController.listClusters() 
+            .then(function(res) {
+            	return response.send(res);
+            })
+            .catch(responseHandler.sendErrorResponse(response)); 
+    });
+
+    routes.get('/clusterStatus', function(request, response) {
+        return rrController.clusterStatus() 
+            .then(function(res) {
+            	return response.send(res);
+            })
+            .catch(responseHandler.sendErrorResponse(response)); 
+    });
+
+    routes.get('/rankerStatus', function(request, response) {
+        return rrController.rankerStatus() 
             .then(function(res) {
             	return response.send(res);
             })
@@ -20,3 +47,5 @@ module.exports = function(routes) {
 
     return routes;
 };
+
+
