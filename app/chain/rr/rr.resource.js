@@ -51,10 +51,10 @@ exports.listClusters = function() {
     });
 };
 
-exports.clusterStatus = function() {
+exports.clusterStatus = function(cluster_id) {
     return new Promise(function (resolve, reject) {
         return retrieve_and_rank.pollCluster({
-            cluster_id: clusterID
+            cluster_id: cluster_id
         }, function(err, response) {
             if (err) {
                 return reject(err);

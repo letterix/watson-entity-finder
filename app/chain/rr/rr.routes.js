@@ -29,8 +29,8 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response)); 
     });
 
-    routes.get('/clusterStatus', function(request, response) {
-        return rrController.clusterStatus() 
+    routes.get('/clusterStatus/:cluster_id', function(request, response) {
+        return rrController.clusterStatus(request.params.cluster_id) 
             .then(function(res) {
             	return response.send(res);
             })

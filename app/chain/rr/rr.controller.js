@@ -18,8 +18,8 @@ exports.createCluster = function(clusterName) {
     return rrResource.createCluster(clusterName);
 };
 
-exports.clusterStatus = function() {
-    return rrResource.clusterStatus();
+exports.clusterStatus = function(cluster_id) {
+    return rrResource.clusterStatus(cluster_id);
 };
 
 exports.listClusters = function() {
