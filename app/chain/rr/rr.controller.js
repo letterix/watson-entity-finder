@@ -15,7 +15,7 @@ var utils = require('../../utility/utils');
 // ====================================================
 
 exports.createCluster = function(clusterName) {
-    return rrResource.clusterStatus(clusterName);
+    return rrResource.createCluster(clusterName);
 };
 
 exports.clusterStatus = function() {
@@ -26,6 +26,10 @@ exports.listClusters = function() {
     return rrResource.listClusters();
 };
 
+exports.deleteCluster = function(cluster_id) {
+    return rrResource.deleteCluster(cluster_id);
+};
+
 exports.rankerStatus = function() {
     return rrResource.rankerStatus();
 };
@@ -34,7 +38,6 @@ exports.search = function(search) {
     return scidirController.search(search)
         .then(retrieveFullText);
 };
-
 
 function retrieveFullText(jsonBody) {
     console.log("retrieveFullText");
