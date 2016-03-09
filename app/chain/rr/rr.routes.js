@@ -37,6 +37,14 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response)); 
     });
 
+    routes.get('/deleteCluster/:cluster_id', function(request, response) {
+        return rrController.deleteCluster(request.params.cluster_id) 
+            .then(function(res) {
+            	return response.send(res);
+            })
+            .catch(responseHandler.sendErrorResponse(response)); 
+    });
+
     routes.get('/rankerStatus', function(request, response) {
         return rrController.rankerStatus() 
             .then(function(res) {
