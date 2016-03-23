@@ -78,7 +78,6 @@ exports.retrieveAbstract = function(title, params) {
         .catch(errorHandler.throwResourceError);
 };
 
-
 exports.retrieveArticle = function(eid, params) {
     var options = {
         resolveWithFullResponse: true,
@@ -87,6 +86,23 @@ exports.retrieveArticle = function(eid, params) {
         json: true,
         gzip: true
     };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);
+};
+
+exports.retrieveLink = function(link) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: link,
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+
+    var params = {};
 
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
