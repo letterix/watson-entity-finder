@@ -65,6 +65,16 @@ exports.retrieveArticle = function(eid) {
     return scopusResource.retrieveArticle(eid, params);
 };
 
+exports.retrieveIssn = function(issn) {
+    var params = {
+        'apikey': config.RESOURCE_SCOPUS_API_KEY,
+        'httpAccept': 'application/json'
+    };
+
+    // issn ex: '102615177'
+    return scopusResource.retrieveIssn(issn, params);
+};
+
 exports.retrieveLink = function(link) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
