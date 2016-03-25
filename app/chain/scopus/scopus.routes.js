@@ -38,6 +38,12 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/retrieveIssn/:issn', function(request, response) {
+        scopusController.retrieveIssn(request.params.issn)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     routes.get('/getAllAbstracts/:search', function(request, response) {
         scopusController.getAllAbstracts(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
