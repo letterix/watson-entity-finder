@@ -18,7 +18,7 @@ exports.search = function(query) {
         'apikey': config.RESOURCE_SCOPUS_API_KEY
         ,'httpAccept': 'application/json'
         ,'query': query
-        ,'count': 20
+        ,'count': 15
         ,'date': '2005-2016'
         ,'subj': 'MEDI'
     };
@@ -97,6 +97,11 @@ exports.getAllAbstracts = function(search) {
         .then(getAbstracts);
 };
 
+exports.getAllIssn = function(search) {
+    return scopusController.search(search)
+        .then(getIssn);
+};
+
 // HELPER FUNCTIONS
 // ====================================================
 function extractInfo(jsonBody) {
@@ -123,10 +128,31 @@ function getAbstracts(jsonBody) {
         })
 }
 
+function getIssn(jsonBody) {
+    return Promise.filter(jsonBody['search-results'].entry, filterNoAffiliations)
+        .map(function(entry) {
+            var issn = entry['prism:eIssn'];
+            if (issn === undefined) {
+                issn = entry['prism:issn'];
+                console.log("Issn: " + issn);
+            }
+            else {
+                console.log("eIssn: " + issn);
+            }
+            var result = scopusController.retrieveIssn(issn);
+            console.log("Result: " + result);
+            return result;
+        })
+}
+
 function filterNoAffiliations(entry) {
     return !!entry.affiliation;
 }
 
 function filterNoLinks(entry) {
     return !!entry.link;
+}
+
+function filterNoIssn(entry) {
+    return !!entry.prism.issn;
 }
