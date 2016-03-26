@@ -32,5 +32,41 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/retrieveArticle/:eid', function(request, response) {
+        scopusController.retrieveArticle(request.params.eid)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/retrieveIssn/:issn', function(request, response) {
+        scopusController.retrieveIssn(request.params.issn)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/getAllAbstracts/:search', function(request, response) {
+        scopusController.getAllAbstracts(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/getSearchInfo/:search', function(request, response) {
+        scopusController.getSearchInfo(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/getAllIssn/:search', function(request, response) {
+        scopusController.getAllIssn(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/getInfo/:search', function(request, response) {
+        scopusController.getInfo(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     return routes;
 };

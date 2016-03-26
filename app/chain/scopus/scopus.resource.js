@@ -15,6 +15,8 @@ var scopusSearchUrl = config.RESOURCE_SCOPUS_SEARCH_URL;
 var scopusSearchAuthorUrl = config.RESOURCE_SCOPUS_SEARCH_AUTHOR_URL;
 var scopusRetrieveAuthorUrl = config.RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL;
 var scopusRetrieveAbstractUrl = config.RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL;
+var scopusRetrieveArticleUrl = config.RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL;
+var scopusRetrieveIssnUrl = config.RESOURCE_SCOPUS_RETRIEVE_ISSN_URL;
 var apiKey = config.RESOURCE_SCOPUS_API_KEY;
 
 exports.search = function(params) {
@@ -70,6 +72,55 @@ exports.retrieveAbstract = function(title, params) {
         json: true,
         gzip: true
     };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);
+};
+
+exports.retrieveArticle = function(eid, params) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: scopusRetrieveArticleUrl + eid,
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);
+};
+
+exports.retrieveIssn = function(issn, params) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: scopusRetrieveIssnUrl + issn,
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
+        .then(responseHandler.parseGet)
+        .catch(function (response) {
+            console.log("Error in retriving Issn ", response.statusCode);
+        });
+};
+
+exports.retrieveLink = function(link) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: link,
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+
+    var params = {};
 
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
