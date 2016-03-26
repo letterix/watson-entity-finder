@@ -50,14 +50,20 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
-    routes.get('/getInfo/:search', function(request, response) {
-        scopusController.getInfo(request.params.search)
+    routes.get('/getSearchInfo/:search', function(request, response) {
+        scopusController.getSearchInfo(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
 
     routes.get('/getAllIssn/:search', function(request, response) {
         scopusController.getAllIssn(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/getInfo/:search', function(request, response) {
+        scopusController.getInfo(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
