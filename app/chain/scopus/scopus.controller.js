@@ -87,9 +87,9 @@ exports.retrieveLink = function(link) {
 
 // Calls with post work
 // ====================================================
-exports.getInfo = function(search) {
+exports.getSearchInfo = function(search) {
     return scopusController.search(search)
-        .then(extractInfo);
+        .then(searchInfo);
 };
 
 exports.getAllAbstracts = function(search) {
@@ -102,9 +102,14 @@ exports.getAllIssn = function(search) {
         .then(getIssn);
 };
 
+exports.getInfo = function(search) {
+    return scopusController.search(search)
+        .then(extractInfo);
+};
+
 // HELPER FUNCTIONS
 // ====================================================
-function extractInfo(jsonBody) {
+function searchInfo(jsonBody) {
     return Promise.filter(jsonBody['search-results'].entry, filterNoAffiliations)
         .map(function(entry) {
             return new Promise(function(resolve, reject) {
@@ -154,6 +159,34 @@ function getIssnData(issnBody) {
     }
     return new Promise(function(resolve, reject) {
         return resolve(result);
+    })
+}
+
+function extractInfo(jsonBody) {
+    return Promise.filter(jsonBody['search-results'].entry, filterNoAffiliations)
+        .map(function(entry) {
+            var issn = entry['prism:eIssn'];
+            if (issn === undefined) {
+                issn = entry['prism:issn'];
+            }
+            return scopusController.retrieveIssn(issn)
+                .then(getIssnData)
+                .then(function(res) {
+                    return addInfoFromSearchResult(entry, res);
+                });
+        })
+}
+
+function addInfoFromSearchResult(entry, object) {
+    object.name = entry['dc:creator'];
+    object.affiliation = entry.affiliation[0];
+    object.citedBy = entry['citedby-count'];
+    object.publishedIn = entry['prism:aggregationType'];
+    object.publishedBy = entry['prism:publicationName'];
+    object.type = entry['subtypeDescription'];    
+
+    return new Promise(function(resolve, reject) {
+        return resolve(object);
     })
 }
 
