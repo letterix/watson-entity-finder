@@ -106,7 +106,9 @@ exports.retrieveIssn = function(issn, params) {
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
         .then(responseHandler.parseGet)
-        .catch(errorHandler.throwResourceError);
+        .catch(function (response) {
+            console.log("Error in retriving Issn ", response.statusCode);
+        });
 };
 
 exports.retrieveLink = function(link) {
