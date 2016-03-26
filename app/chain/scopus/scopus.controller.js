@@ -18,7 +18,7 @@ exports.search = function(query) {
         'apikey': config.RESOURCE_SCOPUS_API_KEY
         ,'httpAccept': 'application/json'
         ,'query': query
-        ,'count': 15
+        ,'count': 20
         ,'date': '2005-2016'
         ,'subj': 'MEDI'
     };
@@ -134,15 +134,27 @@ function getIssn(jsonBody) {
             var issn = entry['prism:eIssn'];
             if (issn === undefined) {
                 issn = entry['prism:issn'];
-                console.log("Issn: " + issn);
             }
-            else {
-                console.log("eIssn: " + issn);
-            }
-            var result = scopusController.retrieveIssn(issn);
-            console.log("Result: " + result);
-            return result;
+            return scopusController.retrieveIssn(issn)
+                .then(getIssnData);
         })
+}
+
+function getIssnData(issnBody) {
+    if (issnBody === undefined) {
+        var result = {}
+    }
+    else {
+        var res = issnBody['serial-metadata-response']['entry'][0];
+        var result = {
+            IPP: res['IPPList']['IPP'][0]['$'],
+            SJR: res['SJRList']['SJR'][0]['$'],
+            SNIP: res['SNIPList']['SNIP'][0]['$']
+        };
+    }
+    return new Promise(function(resolve, reject) {
+        return resolve(result);
+    })
 }
 
 function filterNoAffiliations(entry) {
