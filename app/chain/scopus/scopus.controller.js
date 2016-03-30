@@ -7,6 +7,7 @@
 var Promise = require('bluebird');
 var scopusResource = require('./scopus.resource');
 var scopusController = require('./scopus.controller');
+var tradeoffController = require('../tradeoff-analytics/tradeoff.controller');
 var errorHandler = require('../../handler/error.handler.js');
 var config = require('config');
 
@@ -107,6 +108,11 @@ exports.getInfo = function(search) {
         .then(extractInfo);
 };
 
+exports.getTradeoff = function(search) {
+    return scopusController.getInfo(search)
+        .then(tradeoffController.getDilemmas);    
+}
+
 // HELPER FUNCTIONS
 // ====================================================
 function searchInfo(jsonBody) {
@@ -147,14 +153,18 @@ function getIssn(jsonBody) {
 
 function getIssnData(issnBody) {
     if (issnBody === undefined) {
-        var result = {}
+        var result = {
+            IPP: 0,
+            SJR: 0,
+            SNIP: 0
+        }
     }
     else {
         var res = issnBody['serial-metadata-response']['entry'][0];
         var result = {
-            IPP: res['IPPList']['IPP'][0]['$'],
-            SJR: res['SJRList']['SJR'][0]['$'],
-            SNIP: res['SNIPList']['SNIP'][0]['$']
+            IPP: Number(res['IPPList']['IPP'][0]['$']),
+            SJR: Number(res['SJRList']['SJR'][0]['$']),
+            SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
         };
     }
     return new Promise(function(resolve, reject) {
@@ -177,13 +187,17 @@ function extractInfo(jsonBody) {
         })
 }
 
-function addInfoFromSearchResult(entry, object) {
-    object.name = entry['dc:creator'];
-    object.affiliation = entry.affiliation[0];
-    object.citedBy = entry['citedby-count'];
-    object.publishedIn = entry['prism:aggregationType'];
-    object.publishedBy = entry['prism:publicationName'];
-    object.type = entry['subtypeDescription'];    
+function addInfoFromSearchResult(entry, values) {
+    values.citedBy = Number(entry['citedby-count']);
+    var object = {
+        key: entry['eid'],
+        name: entry['dc:creator'],
+        values: values,
+        affiliation: entry.affiliation[0],
+        publishedIn: entry['prism:aggregationType'],
+        publishedBy: entry['prism:publicationName'],
+        type: entry['subtypeDescription']
+    }
 
     return new Promise(function(resolve, reject) {
         return resolve(object);
