@@ -10,7 +10,6 @@ var alchemyController = require('./alchemy.controller');
 module.exports = function(routes) {
 
     routes.get('/:url', function(request, response) {
-		console.log("alchemy");
         alchemyController.getEntitiesByUrl(request.params.url)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
