@@ -128,7 +128,6 @@ function searchInfo(jsonBody) {
 function getAbstracts(jsonBody) {
     return Promise.filter(jsonBody['search-results'].entry, filterNoLinks)
         .map(function(entry) {
-            console.log("Link: " + entry['link'][0]['@href']);
             return scopusController.retrieveLink(entry['link'][0]['@href']);
         })
 }
@@ -157,7 +156,7 @@ function getIssnData(issnBody) {
             SNIP: res['SNIPList']['SNIP'][0]['$']
         };
     }
-    
+
     return new Promise(function(resolve, reject) {
         return resolve(result);
     })
