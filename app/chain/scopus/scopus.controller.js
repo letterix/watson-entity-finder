@@ -134,7 +134,6 @@ function searchInfo(jsonBody) {
 function getAbstracts(jsonBody) {
     return Promise.filter(jsonBody['search-results'].entry, filterNoLinks)
         .map(function(entry) {
-            console.log("Link: " + entry['link'][0]['@href']);
             return scopusController.retrieveLink(entry['link'][0]['@href']);
         })
 }
@@ -146,6 +145,7 @@ function getIssn(jsonBody) {
             if (issn === undefined) {
                 issn = entry['prism:issn'];
             }
+
             return scopusController.retrieveIssn(issn)
                 .then(getIssnData);
         })
@@ -158,8 +158,7 @@ function getIssnData(issnBody) {
             SJR: 0,
             SNIP: 0
         }
-    }
-    else {
+    } else {
         var res = issnBody['serial-metadata-response']['entry'][0];
         var result = {
             IPP: Number(res['IPPList']['IPP'][0]['$']),
@@ -167,6 +166,7 @@ function getIssnData(issnBody) {
             SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
         };
     }
+
     return new Promise(function(resolve, reject) {
         return resolve(result);
     })
@@ -179,6 +179,7 @@ function extractInfo(jsonBody) {
             if (issn === undefined) {
                 issn = entry['prism:issn'];
             }
+
             return scopusController.retrieveIssn(issn)
                 .then(getIssnData)
                 .then(function(res) {
