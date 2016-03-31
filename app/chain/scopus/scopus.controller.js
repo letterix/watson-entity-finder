@@ -140,6 +140,7 @@ function getIssn(jsonBody) {
             if (issn === undefined) {
                 issn = entry['prism:issn'];
             }
+
             return scopusController.retrieveIssn(issn)
                 .then(getIssnData);
         })
@@ -148,8 +149,7 @@ function getIssn(jsonBody) {
 function getIssnData(issnBody) {
     if (issnBody === undefined) {
         var result = {}
-    }
-    else {
+    } else {
         var res = issnBody['serial-metadata-response']['entry'][0];
         var result = {
             IPP: res['IPPList']['IPP'][0]['$'],
@@ -157,6 +157,7 @@ function getIssnData(issnBody) {
             SNIP: res['SNIPList']['SNIP'][0]['$']
         };
     }
+    
     return new Promise(function(resolve, reject) {
         return resolve(result);
     })
@@ -169,6 +170,7 @@ function extractInfo(jsonBody) {
             if (issn === undefined) {
                 issn = entry['prism:issn'];
             }
+
             return scopusController.retrieveIssn(issn)
                 .then(getIssnData)
                 .then(function(res) {
