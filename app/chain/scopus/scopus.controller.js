@@ -152,22 +152,23 @@ function getIssn(jsonBody) {
 }
 
 function getIssnData(issnBody) {
-    if (issnBody === undefined) {
-        var result = {
-            IPP: 0,
-            SJR: 0,
-            SNIP: 0
-        }
-    } else {
-        var res = issnBody['serial-metadata-response']['entry'][0];
-        var result = {
-            IPP: Number(res['IPPList']['IPP'][0]['$']),
-            SJR: Number(res['SJRList']['SJR'][0]['$']),
-            SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
-        };
-    }
-
     return new Promise(function(resolve, reject) {
+        if (issnBody === undefined) {
+            var result = {
+                IPP: 0,
+                SJR: 0,
+                SNIP: 0
+            }
+        } 
+        else {
+            var res = issnBody['serial-metadata-response']['entry'][0];
+            var result = {
+                IPP: Number(res['IPPList']['IPP'][0]['$']),
+                SJR: Number(res['SJRList']['SJR'][0]['$']),
+                SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
+            };
+        }
+
         return resolve(result);
     })
 }
@@ -189,18 +190,19 @@ function extractInfo(jsonBody) {
 }
 
 function addInfoFromSearchResult(entry, values) {
-    values.citedBy = Number(entry['citedby-count']);
-    var object = {
-        key: entry['eid'],
-        name: entry['dc:creator'],
-        values: values,
-        affiliation: entry.affiliation[0],
-        publishedIn: entry['prism:aggregationType'],
-        publishedBy: entry['prism:publicationName'],
-        type: entry['subtypeDescription']
-    }
-
     return new Promise(function(resolve, reject) {
+        values.citedBy = Number(entry['citedby-count']);
+
+        var object = {
+            key: entry['eid'],
+            name: entry['dc:creator'],
+            values: values,
+            affiliation: entry.affiliation[0],
+            publishedIn: entry['prism:aggregationType'],
+            publishedBy: entry['prism:publicationName'],
+            type: entry['subtypeDescription']
+        }
+
         return resolve(object);
     })
 }
