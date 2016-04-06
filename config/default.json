@@ -9,5 +9,7 @@
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
     "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/",
     "RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL": "http://api.elsevier.com/content/article/eid/",
-    "RESOURCE_SCOPUS_RETRIEVE_ISSN_URL": "http://api.elsevier.com/content/serial/title/issn/"
+    "RESOURCE_SCOPUS_RETRIEVE_ISSN_URL": "http://api.elsevier.com/content/serial/title/issn/",
+    "RESOURCE_SCIDIR_SEARCH_URL": "http://api.elsevier.com/content/search/scidir",
+    "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/"
 }
