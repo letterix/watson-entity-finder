@@ -102,16 +102,12 @@ exports.retrieveIssn = function(issn, params) {
         json: true,
         gzip: true
     };
-
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
-        .then(responseHandler.parseGet)
-        .catch(function (response) {
-            console.log("Error in retriving Issn ", response.statusCode);
-        });
+        .then(responseHandler.parseGet);
 };
 
-exports.retrieveLink = function(link) {
+exports.retrieveLink = function(link, params) {
     var options = {
         resolveWithFullResponse: true,
         uri: link,
@@ -119,8 +115,6 @@ exports.retrieveLink = function(link) {
         json: true,
         gzip: true
     };
-
-    var params = {};
 
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
