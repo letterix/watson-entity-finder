@@ -45,11 +45,8 @@ var appEnv = cfenv.getAppEnv();
 app.use('/api/watson', watsonRoutes);
 app.use('/api/alchemy', alchemyRoutes);
 app.use('/api/scopus', scopusRoutes);
-<<<<<<< HEAD
 app.use('/api/pubmed', pubmedRoutes);
-=======
 app.use('/api/scidir', scidirRoutes);
->>>>>>> master
 app.use('/api/search', searchRoutes);
 
 // serve the files out of ./public as our main files
