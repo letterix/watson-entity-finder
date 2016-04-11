@@ -14,7 +14,8 @@ var cfenv = require('cfenv');
 var watsonRoutes = require('./chain/watson/watson.routes')(express.Router());
 var alchemyRoutes = require('./chain/alchemy/alchemy.routes')(express.Router());
 var scopusRoutes = require('./chain/scopus/scopus.routes')(express.Router());
-var pubmedRoutes = require('./chain/pubmed/pubmed.routes')(express.Router());
+
+var scidirRoutes = require('./chain/scidir/scidir.routes')(express.Router());
 var searchRoutes = require('./chain/search/search.routes')(express.Router());
 
 // create a new express server
@@ -44,7 +45,11 @@ var appEnv = cfenv.getAppEnv();
 app.use('/api/watson', watsonRoutes);
 app.use('/api/alchemy', alchemyRoutes);
 app.use('/api/scopus', scopusRoutes);
+<<<<<<< HEAD
 app.use('/api/pubmed', pubmedRoutes);
+=======
+app.use('/api/scidir', scidirRoutes);
+>>>>>>> master
 app.use('/api/search', searchRoutes);
 
 // serve the files out of ./public as our main files
