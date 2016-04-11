@@ -67,12 +67,12 @@ module.exports = function(routes) {
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
-
+/*
     routes.get('/getTradeoff/:search', function(request, response) {
         scopusController.getTradeoff(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
-
+*/
     return routes;
 };
