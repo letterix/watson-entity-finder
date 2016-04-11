@@ -31,3 +31,13 @@ exports.replaceAll = function(string, find, replace) {
     return string.split(find).join(replace);
 };
 
+exports.undefinedFilter = function(result) {
+    return !!result;
+}
+
+exports.setFieldForObject = function(field, object) {
+    return function(res) {
+        object[field] = res;
+        return object;
+    }
+}
