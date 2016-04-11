@@ -187,8 +187,6 @@ function extractInfo(jsonBody) {
                 }) // Catching undefined response from retrieveIssn
         })
         .return(mapList);
-        // return mapList
-        //.filter(utils.undefinedFilter)
 }
 
 function addInfoFromSearchResult(article) {
