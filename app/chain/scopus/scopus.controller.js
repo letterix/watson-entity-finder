@@ -10,6 +10,7 @@ var scopusController = require('./scopus.controller');
 var tradeoffController = require('../tradeoff-analytics/tradeoff.controller');
 var errorHandler = require('../../handler/error.handler.js');
 var config = require('config');
+var utils = require('../../utility/utils');
 
 // DOES EXPORT
 // ====================================================
@@ -20,7 +21,7 @@ exports.search = function(query) {
         ,'httpAccept': 'application/json'
         ,'query': query
         ,'count': 20
-        ,'date': '2005-2016'
+        ,'date': '2010-2016'
         ,'subj': 'MEDI'
     };
 
@@ -107,12 +108,12 @@ exports.getInfo = function(search) {
     return scopusController.search(search)
         .then(extractInfo);
 };
-
+/*
 exports.getTradeoff = function(search) {
     return scopusController.getInfo(search)
         .then(tradeoffController.getDilemmas);    
 }
-
+*/
 // HELPER FUNCTIONS
 // ====================================================
 function searchInfo(jsonBody) {
@@ -147,64 +148,92 @@ function getIssn(jsonBody) {
             }
 
             return scopusController.retrieveIssn(issn)
-                .then(getIssnData);
+                .then(getIssnData)
+                .catch(function(result) {
+                    console.log("Catch in getIssn: " + result)
+                }); // Catching undefined response from retrieveIssn
         })
+        .filter(utils.undefinedFilter)
 }
 
 function getIssnData(issnBody) {
     return new Promise(function(resolve, reject) {
-        if (issnBody === undefined) {
-            var result = {
-                IPP: 0,
-                SJR: 0,
-                SNIP: 0
-            }
-        } 
-        else {
-            var res = issnBody['serial-metadata-response']['entry'][0];
-            var result = {
-                IPP: Number(res['IPPList']['IPP'][0]['$']),
-                SJR: Number(res['SJRList']['SJR'][0]['$']),
-                SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
-            };
-        }
+        var res = issnBody['serial-metadata-response']['entry'][0];
+        var result = {
+            IPP: Number(res['IPPList']['IPP'][0]['$']),
+            SJR: Number(res['SJRList']['SJR'][0]['$']),
+            SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
+        };
 
         return resolve(result);
     })
 }
 
 function extractInfo(jsonBody) {
+    var mapList = {};
     return Promise.filter(jsonBody['search-results'].entry, filterNoAffiliations)
-        .map(function(entry) {
-            var issn = entry['prism:eIssn'];
+        .map(function(article) {
+            var issn = article['prism:eIssn'];
             if (issn === undefined) {
-                issn = entry['prism:issn'];
+                issn = article['prism:issn'];
             }
 
             return scopusController.retrieveIssn(issn)
                 .then(getIssnData)
-                .then(function(res) {
-                    return addInfoFromSearchResult(entry, res);
-                });
+                .then(addInfoFromSearchResult(article))
+                .then(getAuthorsByLink(article['prism:url'], mapList))
+                .catch(function(result) {
+                    console.log("Catch in extractInfo: " + result)
+                }) // Catching undefined response from retrieveIssn
         })
+        .return(mapList);
+        // return mapList
+        //.filter(utils.undefinedFilter)
 }
 
-function addInfoFromSearchResult(entry, values) {
-    return new Promise(function(resolve, reject) {
-        values.citedBy = Number(entry['citedby-count']);
+function addInfoFromSearchResult(article) {
+    return function(issn) {
+        return new Promise(function(resolve, reject) {
+            issn.citedBy = Number(article['citedby-count']);
+            var object = {
+                key: article['eid'],
+                name: article['dc:creator'],
+                values: issn,
+                affiliation: article.affiliation[0],
+                publishedIn: article['prism:aggregationType'],
+                publishedBy: article['prism:publicationName'],
+                type: article['subtypeDescription']
+            }
 
-        var object = {
-            key: entry['eid'],
-            name: entry['dc:creator'],
-            values: values,
-            affiliation: entry.affiliation[0],
-            publishedIn: entry['prism:aggregationType'],
-            publishedBy: entry['prism:publicationName'],
-            type: entry['subtypeDescription']
-        }
+            return resolve(object);
+        })
+    }
+}
 
-        return resolve(object);
-    })
+function getAuthorsByLink(link, mapList) {
+    return function(article) {
+        return scopusController.retrieveLink(link)
+            //.then(utils.setFieldForObject('authors', article))
+            .then(mapAuthorsFromAbstract(mapList, article))
+            .catch(function(error) {
+                console.log("Catch in getAuthorsByLink: " + error);
+            });
+    }
+}
+
+function mapAuthorsFromAbstract(mapList, article) {
+    return function(abstract) {
+        console.log("abstract: " + Object.keys(abstract['abstracts-retrieval-response']['authors']));
+        return Promise.map(abstract['abstracts-retrieval-response']['authors']['author'], function(author) {
+            console.log(author['@auid']);
+            if (!mapList[author['@auid']]) {
+                mapList[author['@auid']] = [];
+            }
+
+            mapList[author['@auid']].push(article);
+        })
+        .return(mapList);
+    };
 }
 
 function filterNoAffiliations(entry) {
