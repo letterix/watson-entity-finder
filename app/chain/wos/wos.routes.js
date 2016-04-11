@@ -11,7 +11,7 @@ module.exports = function(routes) {
 
     // This just a hard coded test
     routes.get('/', function(request, response) {
-        wosController.search()
+        wosController.authenticate()
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });

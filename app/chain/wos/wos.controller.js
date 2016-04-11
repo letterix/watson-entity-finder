@@ -12,12 +12,12 @@ var xml = require('xml');
 // DOES EXPORT
 // ====================================================
 
-exports.search = function() {
+exports.authenticate = function() {
 
     var xmlObject = [ {
-        'soapenv:Envelope': [ 
-        {   '_attr': { 
-                'xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/', 
+        'soapenv:Envelope': [
+        {   '_attr': {
+                'xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
                 'xmlns:auth': 'http://auth.cxf.wokmws.thomsonreuters.com'
             }
         },
@@ -25,7 +25,7 @@ exports.search = function() {
         },
         {   'soapenv:Body': [ {
                 'auth:authenticate': {}
-            } ] 
+            } ]
         } ]
     } ];
 
@@ -36,8 +36,48 @@ exports.search = function() {
 
     var xmlString = xml(xmlObject, options);
 
-     return wosResource.search(xmlString)
+     return wosResource.authenticate(xmlString)
         .then(function(res) {
             return res['soap:Envelope']['soap:Body'][0]['ns2:authenticateResponse'][0]['return'][0];
         });
 };
+
+exports.search = function(sessionId) {
+
+      var xmlObject = [ {
+          'soapenv:Envelope': [
+          {   '_attr': {
+                  'xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
+                  'xmlns:woksearchlite': 'http://woksearchlite.v3.wokmws.thomsonreuters.com'
+              }
+          },
+          {   'soapenv:Header': {}
+          },
+          {   'soapenv:Body': [ {
+                  'woksearchlite:search': [
+                    {'queryParameters': [
+                          {'databaseId':'WOS'},
+                          {'userQuery':'TS=Cancer'},//Put search parameters here
+                          {'queryLanguage':'en'}//Try omitting this line if you are feeling adventureous
+                          ]
+                    },
+                    {'retrieveParameters': [
+                          {'firstRecord':'1'},//The first record to return. Only 100 records can be returned with each search.
+                          {'count':'100'},    //The number of records to return. Should probably be kept at 100.
+                          ]
+                    },
+                  ] }
+              ]
+          }
+        ] }
+      ];
+
+      var options = {};
+
+      var xmlString = xml(xmlObject, options);
+
+       return wosResource.search(xmlString)
+          .then(function(res) {
+              return res;//What should be extracted and to which format?
+          });
+  };
