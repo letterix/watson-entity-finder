@@ -47,12 +47,7 @@ app.use('/api/alchemy', alchemyRoutes);
 app.use('/api/scopus', scopusRoutes);
 app.use('/api/scidir', scidirRoutes);
 app.use('/api/search', searchRoutes);
-<<<<<<< Updated upstream
 app.use('/api/tradeoff-analytics', tradeoffRoutes);
-=======
-app.use('/api/rr', rrRoutes);
-app.use('/api/curl', curlRoutes);
->>>>>>> Stashed changes
 
 // serve the files out of ./public as our main files
 app.use(express.static(__dirname + '/public'));
