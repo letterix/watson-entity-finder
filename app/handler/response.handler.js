@@ -8,6 +8,8 @@ var Promise = require('bluebird');
 var errorHandler = require('./error.handler');
 var msg = require('./message.handler');
 var config = require('config');
+var xlmToJs = Promise.promisifyAll(require('xml2js'));
+
 
 // PARSING
 // ============================================================================
@@ -22,6 +24,12 @@ exports.parsePost = function(response) {
     return checkResponse(response)
         .then(checkStatusCode(200))
         .then(parseBody);
+};
+
+exports.parsePostXml = function(response) {
+    return checkResponse(response)
+        .then(checkStatusCode(200))
+        .then(parseBodyXml);
 };
 
 exports.parsePut = function(response) {
@@ -109,6 +117,13 @@ function parseBody(response) {
         return resolve(body);
     });
 }
+
+function parseBodyXml(response) {
+    var body = response.body || '{}';
+    console.log("The body: " + xlmToJs.parseStringAsync);
+    return xlmToJs.parseStringAsync(body);
+}
+
 
 // SENDING
 // ============================================================================
