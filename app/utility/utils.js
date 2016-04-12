@@ -35,6 +35,12 @@ exports.undefinedFilter = function(result) {
     return !!result;
 }
 
+exports.undefinedFieldFilter = function(field) {
+    return function(res) {
+        return !!res[field];
+    }
+}
+
 exports.setFieldForObject = function(field, object) {
     return function(res) {
         object[field] = res;
