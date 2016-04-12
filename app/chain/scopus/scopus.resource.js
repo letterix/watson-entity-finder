@@ -19,6 +19,8 @@ var scopusRetrieveArticleUrl = config.RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL;
 var scopusRetrieveIssnUrl = config.RESOURCE_SCOPUS_RETRIEVE_ISSN_URL;
 var apiKey = config.RESOURCE_SCOPUS_API_KEY;
 
+var pool = { maxSockets: 200 };
+
 exports.search = function(params) {
     var options = {
         resolveWithFullResponse: true,
@@ -27,9 +29,14 @@ exports.search = function(params) {
         json: true,
         gzip: true
     };
-
+    console.time('scopusSearch');
+            
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
+        .then(function(res) {
+            console.timeEnd('scopusSearch');
+            return res;
+        })
         .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);
 };
@@ -99,11 +106,19 @@ exports.retrieveIssn = function(issn, params) {
         resolveWithFullResponse: true,
         uri: scopusRetrieveIssnUrl + issn,
         method: 'GET',
+        agent: false,
         json: true,
         gzip: true
     };
+    console.time('retrieveIssn');
+    console.log('starting a retrieveIssn request');
+
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
+        .then(function(res) {
+            console.timeEnd('retrieveIssn');
+            return res;
+        })
         .then(responseHandler.parseGet);
 };
 
@@ -112,12 +127,18 @@ exports.retrieveLink = function(link, params) {
         resolveWithFullResponse: true,
         uri: link,
         method: 'GET',
+        pool: pool,
         json: true,
         gzip: true
     };
+    console.time('retrieveLink');
 
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
+        .then(function(res) {
+            console.timeEnd('retrieveLink');
+            return res;
+        })
         .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);
 };
