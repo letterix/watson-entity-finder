@@ -6,7 +6,6 @@
  */
 var responseHandler = require('../../handler/response.handler');
 var wosController = require('./wos.controller');
-var currentConn
 
 module.exports = function(routes) {
 
@@ -16,6 +15,7 @@ module.exports = function(routes) {
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
+    
     routes.get('/:search', function(request, response) {
         wosController.search()
             .then(responseHandler.sendJsonResponse(response))

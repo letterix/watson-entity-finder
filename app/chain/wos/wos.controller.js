@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 var wosResource = require('./wos.resource');
 var errorHandler = require('../../handler/error.handler.js');
 var xml = require('xml');
-
+var sid = '';
 // DOES EXPORT
 // ====================================================
 
@@ -42,8 +42,7 @@ exports.authenticate = function() {
         });
 };
 
-exports.search = function(sessionId) {
-
+exports.search = function() {
       var xmlObject = [ {
           'soapenv:Envelope': [
           {   '_attr': {
@@ -71,9 +70,7 @@ exports.search = function(sessionId) {
           }
         ] }
       ];
-
       var options = {};
-
       var xmlString = xml(xmlObject, options);
 
        return wosResource.search(xmlString)
