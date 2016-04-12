@@ -14,13 +14,12 @@ var utils = require('../../utility/utils');
 
 // DOES EXPORT
 // ====================================================
-
 exports.search = function(query) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY
         ,'httpAccept': 'application/json'
         ,'query': query
-        ,'count': 20
+        ,'count': 2
         ,'date': '2010-2016'
         ,'subj': 'MEDI'
     };
@@ -89,24 +88,25 @@ exports.retrieveLink = function(link) {
 
 // Calls with post work
 // ====================================================
-exports.getSearchInfo = function(search) {
+exports.searchArticles = function(search) {
+    console.time('scopusSearch');
     return scopusController.search(search)
-        .then(searchInfo);
-};
-
-exports.getAllAbstracts = function(search) {
-    return scopusController.search(search)
-        .then(getAbstracts);
-};
-
-exports.getAllIssn = function(search) {
-    return scopusController.search(search)
-        .then(getIssn);
-};
-
-exports.getInfo = function(search) {
-    return scopusController.search(search)
-        .then(extractInfo);
+        .then(function(res) {
+            console.timeEnd('scopusSearch');
+            console.time('mapIssn');
+            return res;
+        })
+        .then(mapIssn)
+        .then(function(res) {
+            console.timeEnd('mapIssn');
+            console.time('mapAuthors');
+            return res;
+        })
+        .then(mapAuthors)
+        .then(function(res) {
+            console.timeEnd('mapAuthors');
+            return res;
+        })
 };
 /*
 exports.getTradeoff = function(search) {
@@ -116,31 +116,15 @@ exports.getTradeoff = function(search) {
 */
 // HELPER FUNCTIONS
 // ====================================================
-function searchInfo(jsonBody) {
-    return Promise.filter(jsonBody['search-results'].entry, filterNoAffiliations)
-        .map(function(entry) {
-            return new Promise(function(resolve, reject) {
-                return resolve({
-                    name: entry['dc:creator'],
-                    affiliation: entry.affiliation[0],
-                    citedBy: entry['citedby-count'],
-                    publishedIn: entry['prism:aggregationType'],
-                    publishedBy: entry['prism:publicationName'],
-                    type: entry['subtypeDescription']
-                });
-            });
-        });
+function retrieveAbstract(article) {
+    return scopusController.retrieveLink(article['link'][0]['@href']);    
 }
 
-function getAbstracts(jsonBody) {
-    return Promise.filter(jsonBody['search-results'].entry, filterNoLinks)
-        .map(function(entry) {
-            return scopusController.retrieveLink(entry['link'][0]['@href']);
-        })
-}
+// MAP ISSN
+// ====================================================
 
-function getIssn(jsonBody) {
-    return Promise.filter(jsonBody['search-results'].entry, filterNoAffiliations)
+function mapIssn(jsonBody) {
+    return Promise.filter(jsonBody['search-results'].entry, utils.undefinedFieldFilter('affiliation'))
         .map(function(entry) {
             var issn = entry['prism:eIssn'];
             if (issn === undefined) {
@@ -148,15 +132,16 @@ function getIssn(jsonBody) {
             }
 
             return scopusController.retrieveIssn(issn)
-                .then(getIssnData)
+                .then(mapIssnData)
+                .then(utils.setFieldForObject('issn', entry))
                 .catch(function(result) {
-                    console.log("Catch in getIssn: " + result)
+                    console.log("Catch in mapIssn: " + result)
                 }); // Catching undefined response from retrieveIssn
         })
         .filter(utils.undefinedFilter)
 }
 
-function getIssnData(issnBody) {
+function mapIssnData(issnBody) {
     return new Promise(function(resolve, reject) {
         var res = issnBody['serial-metadata-response']['entry'][0];
         var result = {
@@ -165,83 +150,38 @@ function getIssnData(issnBody) {
             SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
         };
 
+
         return resolve(result);
     })
 }
 
-function extractInfo(jsonBody) {
-    var mapList = {};
-    return Promise.filter(jsonBody['search-results'].entry, filterNoAffiliations)
-        .map(function(article) {
-            var issn = article['prism:eIssn'];
-            if (issn === undefined) {
-                issn = article['prism:issn'];
-            }
+// MAP AUTHORS
+// ====================================================
 
-            return scopusController.retrieveIssn(issn)
-                .then(getIssnData)
-                .then(addInfoFromSearchResult(article))
-                .then(getAuthorsByLink(article['prism:url'], mapList))
-                .catch(function(result) {
-                    console.log("Catch in extractInfo: " + result)
-                }) // Catching undefined response from retrieveIssn
-        })
-        .return(mapList);
+function mapAuthors(articles) {
+    var authorMap = {};
+    return Promise.map(articles, mapAuthor(authorMap))
+        .return(authorMap)
 }
 
-function addInfoFromSearchResult(article) {
-    return function(issn) {
-        return new Promise(function(resolve, reject) {
-            issn.citedBy = Number(article['citedby-count']);
-            var object = {
-                key: article['eid'],
-                name: article['dc:creator'],
-                values: issn,
-                affiliation: article.affiliation[0],
-                publishedIn: article['prism:aggregationType'],
-                publishedBy: article['prism:publicationName'],
-                type: article['subtypeDescription']
-            }
-
-            return resolve(object);
-        })
-    }
-}
-
-function getAuthorsByLink(link, mapList) {
+function mapAuthor(authorMap) {
     return function(article) {
-        return scopusController.retrieveLink(link)
-            //.then(utils.setFieldForObject('authors', article))
-            .then(mapAuthorsFromAbstract(mapList, article))
+        return retrieveAbstract(article)
+            .then(mapAuthorsFromAbstract(authorMap, article))
             .catch(function(error) {
-                console.log("Catch in getAuthorsByLink: " + error);
-            });
+                console.log("Catch in mapAuthor: " + error);
+            });    
     }
 }
 
-function mapAuthorsFromAbstract(mapList, article) {
+function mapAuthorsFromAbstract(authorMap, article) {
     return function(abstract) {
-        console.log("abstract: " + Object.keys(abstract['abstracts-retrieval-response']['authors']));
         return Promise.map(abstract['abstracts-retrieval-response']['authors']['author'], function(author) {
-            console.log(author['@auid']);
-            if (!mapList[author['@auid']]) {
-                mapList[author['@auid']] = [];
+            if (!authorMap[author['@auid']]) {
+                authorMap[author['@auid']] = [];
             }
 
-            mapList[author['@auid']].push(article);
-        })
-        .return(mapList);
+            authorMap[author['@auid']].push(article);
+        });
     };
-}
-
-function filterNoAffiliations(entry) {
-    return !!entry.affiliation;
-}
-
-function filterNoLinks(entry) {
-    return !!entry.link;
-}
-
-function filterNoIssn(entry) {
-    return !!entry.prism.issn;
 }
