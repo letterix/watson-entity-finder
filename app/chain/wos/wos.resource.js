@@ -10,12 +10,13 @@ var config = require('config');
 var responseHandler = require('../../handler/response.handler');
 var errorHandler = require('../../handler/error.handler');
 
-var url = 'http://search.webofknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl';
+var authUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl';
+var searchUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl';
 
 exports.authenticate = function(xml) {
     var options = {
         resolveWithFullResponse: true,
-        uri : url,
+        uri : authUrl,
         method: 'POST',
         headers: {
             'content-type': 'text/xml;charset=UTF-8'
@@ -32,10 +33,11 @@ exports.authenticate = function(xml) {
 exports.search = function(xml) {
     var options = {
         resolveWithFullResponse: true,
-        uri : url,
+        uri : searchUrl,
         method: 'POST',
         headers: {
-            'content-type': 'text/xml;charset=UTF-8'
+            'Cookie':'SID="W8lWR1Z2njc93c4Sf8z"',
+            'content-type': 'application/xml;charset=UTF-8'
         },
         form: xml,
         gzip: true
