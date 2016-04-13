@@ -38,7 +38,7 @@ exports.authenticate = function() {
 
      return wosResource.authenticate(xmlString)
         .then(function(res) {
-            return res['soap:Envelope']['soap:Body'][0]['ns2:authenticateResponse'][0]['return'][0];
+          return res['soap:Envelope']['soap:Body'][0]['ns2:authenticateResponse'][0]['return'][0];
         });
 };
 
@@ -62,7 +62,7 @@ exports.search = function() {
                     },
                     {'retrieveParameters': [
                           {'firstRecord':'1'},//The first record to return. Only 100 records can be returned with each search.
-                          {'count':'100'},    //The number of records to return. Should probably be kept at 100.
+                          {'count':'5'},    //The number of records to return. Should probably be kept at 100.
                           ]
                     },
                   ] }

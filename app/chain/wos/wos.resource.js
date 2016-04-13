@@ -10,6 +10,7 @@ var config = require('config');
 var responseHandler = require('../../handler/response.handler');
 var errorHandler = require('../../handler/error.handler');
 var wosController = require('./wos.controller');
+var xml = require('xml');
 
 var authUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl';
 var searchUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl';
@@ -39,7 +40,7 @@ exports.search = function(xml) {
         method: 'POST',
         headers: {
             'Cookie':'SID='+sid,
-            'content-type': 'application/xml;charset=UTF-8'
+            'content-type': 'text/xml;charset=UTF-8'
         },
         form: xml,
         gzip: true
@@ -47,17 +48,13 @@ exports.search = function(xml) {
 
     return request(options)
         .then(responseHandler.parsePostXml)
-        .catch(checkIfSidError)
-        .then(function(response){
-          sid = wosController.authenticate();
-          options.headers["'Cookie'"] = 'SID='+sid;
-          return request(options)
-              .then(responseHandler.parsePostXml)
-              .catch(errorHandler.throwResourceError);
-        });
+        .catch(function(response){
+          return tryAgain(options, response);
+            })
+        .catch(errorHandler.throwResourceError);
 };
 
-function authenticate() {
+function authAndSearch(searchOptions) {
       var xmlObject = [ {
           'soapenv:Envelope': [
           {   '_attr': {
@@ -72,23 +69,49 @@ function authenticate() {
               } ]
           } ]
       } ];
-      var options = {};
-      var xmlString = xml(xmlObject, options);
-
-       sid = wosResource.authenticate(xmlString)
+      var xmlOptions = {};
+      var xmlString = xml(xmlObject, xmlOptions);
+      var authDetails = {
+          resolveWithFullResponse: true,
+          uri : authUrl,
+          method: 'POST',
+          headers: {
+              'content-type': 'text/xml;charset=UTF-8'
+          },
+          form: xmlString,
+          gzip: true
+      };
+      console.log("we are in authAndSearch");
+      return request(authDetails)
+          .then(responseHandler.parsePostXml)
           .then(function(res) {
-              return res['soap:Envelope']['soap:Body'][0]['ns2:authenticateResponse'][0]['return'][0];
-          });
-  };
+              sid = res['soap:Envelope']['soap:Body'][0]['ns2:authenticateResponse'][0]['return'][0];
+              searchOptions.headers['Cookie']='SID='+sid;
+              console.log(sid);
+              return request(searchOptions)
+                .then(responseHandler.parsePostXml);
+          })
+          .catch(errorHandler.throwResourceError);
 }
 
-
-
-function checkIfSidError(response) {
+function tryAgain(options, response){
     return new Promise(function(resolve, reject){
       if(response.statusCode === 500){
+        return resolve(authAndSearch(options));
+      }
+      console.log("The error code was not 500");
+      return reject(response);
+    });
+}
+
+/*function checkIfSidError(response) {
+  console.log("Checking for siderror");
+    return new Promise(function(resolve, reject){
+      if(response.statusCode === 500){
+        console.log("We got 500!");
         return resolve(response);
       }
+      console.log("The error code was not 500");
       return reject;
     })
-}
+}*/
