@@ -11,7 +11,7 @@ var xml = require('xml');
 var sid = '';
 
 exports.search = function() {
-      var xmlObject = [{
+      var soapSearchMessage = [{
           'soapenv:Envelope': [
             {  '_attr': {
                   'xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
@@ -39,8 +39,7 @@ exports.search = function() {
           ]
       }];
 
-      var options = {};
-      var xmlString = xml(xmlObject, options);
+      var soapString = xml(soapSearchMessage, {});
 
-      return wosResource.search(xmlString);
+      return wosResource.search(soapString);
   };

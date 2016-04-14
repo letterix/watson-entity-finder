@@ -14,12 +14,12 @@ var xml = require('xml');
 
 var authUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl';
 var searchUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl';
-var sid = '';//session id
+var sid = '';
 
 // DOES EXPORT
 // ====================================================
 
-exports.search = function(xml) {
+exports.search = function(soapString) {
     var options = {
         resolveWithFullResponse: true,
         uri : searchUrl,
@@ -28,7 +28,7 @@ exports.search = function(xml) {
             'Cookie':'SID='+sid,
             'content-type': 'text/xml;charset=UTF-8'
         },
-        form: xml,
+        form: soapString,
         gzip: true
     };
 
@@ -53,7 +53,7 @@ function tryAgain(options, response){
 }
 
 function authAndSearch(searchOptions) {
-      var xmlObject = [{
+      var soapAuthMessage = [{
           'soapenv:Envelope': [
             { '_attr': {
                   'xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
@@ -69,21 +69,20 @@ function authAndSearch(searchOptions) {
           ]
       }];
 
-      var xmlOptions = {};
-      var xmlString = xml(xmlObject, xmlOptions);
+      var soapString = xml(soapAuthMessage, {});
 
-      var authDetails = {
+      var authOptions = {
           resolveWithFullResponse: true,
           uri : authUrl,
           method: 'POST',
           headers: {
               'content-type': 'text/xml;charset=UTF-8'
           },
-          form: xmlString,
+          form: soapString,
           gzip: true
       };
 
-      return request(authDetails)
+      return request(authOptions)
           .then(responseHandler.parsePostXml)
           .then(function(res) {
               sid = res['soap:Envelope']['soap:Body'][0]['ns2:authenticateResponse'][0]['return'][0];
