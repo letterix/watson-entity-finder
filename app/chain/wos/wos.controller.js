@@ -8,14 +8,18 @@ var Promise = require('bluebird');
 var wosResource = require('./wos.resource');
 var errorHandler = require('../../handler/error.handler.js');
 var xml = require('xml');
-var sid = '';
+var config = require('config');
+var soapSearchUrl = config.RESOURCE_WOS_SOAP_SEARCH;
+var soapEnv = config.RESOURCE_WOS_SOAPENV;
 
 exports.search = function() {
+      console.log(config);
+      console.log('The search url is: ' + soapSearchUrl);
       var soapSearchMessage = [{
           'soapenv:Envelope': [
             {  '_attr': {
-                  'xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
-                  'xmlns:woksearchlite': 'http://woksearchlite.v3.wokmws.thomsonreuters.com'
+                  'xmlns:soapenv': soapEnv,
+                  'xmlns:woksearchlite': soapSearchUrl
                   }
             },
             {  'soapenv:Header': {}

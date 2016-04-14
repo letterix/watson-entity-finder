@@ -12,8 +12,11 @@ var errorHandler = require('../../handler/error.handler');
 var wosController = require('./wos.controller');
 var xml = require('xml');
 
-var authUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WOKMWSAuthenticate?wsdl';
-var searchUrl = 'http://search.webofknowledge.com/esti/wokmws/ws/WokSearchLite?wsdl';
+var authUrl = config.RESOURCE_WOS_AUTH_URL;
+var searchUrl = config.RESOURCE_WOS_SEARCH_URL;
+var soapAuthUrl = config.RESOURCE_WOS_SOAP_AUTH;
+var soapEnv = config.RESOURCE_WOS_SOAPENV;
+
 var sid = '';
 
 // DOES EXPORT
@@ -56,8 +59,8 @@ function authAndSearch(searchOptions) {
       var soapAuthMessage = [{
           'soapenv:Envelope': [
             { '_attr': {
-                  'xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
-                  'xmlns:auth': 'http://auth.cxf.wokmws.thomsonreuters.com'
+                  'xmlns:soapenv': soapEnv,
+                  'xmlns:auth': soapAuthUrl
               }
             },
             { 'soapenv:Header': {}
