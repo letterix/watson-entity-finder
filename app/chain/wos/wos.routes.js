@@ -8,14 +8,6 @@ var responseHandler = require('../../handler/response.handler');
 var wosController = require('./wos.controller');
 
 module.exports = function(routes) {
-
-    // This just a hard coded test
-    routes.get('/', function(request, response) {
-        wosController.authenticate()
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
-    
     routes.get('/:search', function(request, response) {
         wosController.search()
             .then(responseHandler.sendJsonResponse(response))
