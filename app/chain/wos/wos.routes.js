@@ -13,6 +13,11 @@ module.exports = function(routes) {
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
+    routes.get('/author/:search', function(request, response) {
+        wosController.search(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
 
     return routes;
 };

@@ -42,8 +42,14 @@ exports.search = function(params) {
       }];
       var soapString = xml(soapSearchMessage, {});
   return wosResource.search(soapString)
-  .then(function (param){
-    var records = param["soap:Envelope"]["soap:Body"][0]["ns2:searchResponse"][0]["return"][0]["records"];
+  .then(formatWosOutput);
+}
+
+// PRIVATE METHODS
+// ====================================================
+
+function formatWosOutput(soapMessage){
+    var records = soapMessage["soap:Envelope"]["soap:Body"][0]["ns2:searchResponse"][0]["return"][0]["records"];
     var formatedRecords = [];
     for (var i = 0; i<records.length; i++){
       var record = {};
@@ -53,12 +59,13 @@ exports.search = function(params) {
       record.issn=findLabelValue(records[i]["other"], "Identifier.Issn");
       formatedRecords[i] = record;
     }
-    console.log(formatedRecords);
-    return formatedRecords;
-  });
-};
+  return formatedRecords;
+}
 
 function findLabelValue(list, label){
+    if(list==undefined){
+      return "Missing";
+    };
     for(var i = 0; i < list.length; i++){
       if (list[i]["label"][0]===label){
         if(list[i]["value"].length == 1){
@@ -69,5 +76,5 @@ function findLabelValue(list, label){
         }
       }
     }
-    return "Missing";
+  return "Missing";
 }
