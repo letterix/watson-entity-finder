@@ -54,9 +54,21 @@ function formatWosOutput(soapMessage){
     for (var i = 0; i<records.length; i++){
       var record = {};
       record.title=findLabelValue(records[i]["title"], "Title");
+      if(record.title == undefined){
+        break;
+      }
       record.source=findLabelValue(records[i]["source"], "SourceTitle");
+      if(record.source == undefined){
+        break;
+      }
       record.authors=findLabelValue(records[i]["authors"], "Authors");
+      if(record.authors == undefined){
+        break;
+      }
       record.issn=findLabelValue(records[i]["other"], "Identifier.Issn");
+      if(record.issn == undefined){
+        break;
+      }
       formatedRecords[i] = record;
     }
   return formatedRecords;
@@ -64,7 +76,7 @@ function formatWosOutput(soapMessage){
 
 function findLabelValue(list, label){
     if(list==undefined){
-      return "Missing";
+      return undefined;
     };
     for(var i = 0; i < list.length; i++){
       if (list[i]["label"][0]===label){
@@ -76,5 +88,5 @@ function findLabelValue(list, label){
         }
       }
     }
-  return "Missing";
+  return undefined;
 }
