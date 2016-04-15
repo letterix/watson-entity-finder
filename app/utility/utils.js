@@ -47,3 +47,28 @@ exports.setFieldForObject = function(field, object) {
         return object;
     }
 }
+
+exports.sortByField = function(list, field) {
+    return new Promise(function(resolve) {
+        list.sort(function(a, b) {
+            if (a[field] < b[field]) {
+                return -1;
+            }
+            return 1;
+        });
+
+        return resolve(list);
+    });
+} 
+
+exports.extractFieldValue = function(fieldList) {
+    return function(value) {
+        return new Promise(function(resolve) {
+            fieldList.forEach(function(field) {
+                value = value[field];
+            });
+
+            return resolve(value);
+        });
+    }
+} 
