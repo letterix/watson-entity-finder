@@ -58,9 +58,6 @@ function formatWosOutput(soapMessage){
         break;
       }
       record.source=findLabelValue(records[i]["source"], "SourceTitle");
-      if(record.source == undefined){
-        break;
-      }
       record.authors=findLabelValue(records[i]["authors"], "Authors");
       if(record.authors == undefined){
         break;
