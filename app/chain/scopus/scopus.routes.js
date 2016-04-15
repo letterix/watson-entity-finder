@@ -9,7 +9,7 @@ var scopusController = require('./scopus.controller');
 
 module.exports = function(routes) {
     routes.get('/:search', function(request, response) {
-        scopusController.search(request.params.search)
+        scopusController.search(request.params.search, 0)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
@@ -44,26 +44,11 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
-    routes.get('/getAllAbstracts/:search', function(request, response) {
-        scopusController.getAllAbstracts(request.params.search)
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
+// Routes with post work
+// ====================================================
 
-    routes.get('/getSearchInfo/:search', function(request, response) {
-        scopusController.getSearchInfo(request.params.search)
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
-
-    routes.get('/getAllIssn/:search', function(request, response) {
-        scopusController.getAllIssn(request.params.search)
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
-
-    routes.get('/getInfo/:search', function(request, response) {
-        scopusController.getInfo(request.params.search)
+    routes.get('/searchArticles/:search', function(request, response) {
+        scopusController.searchArticles(request.params.search, request.query.numRes)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
@@ -74,5 +59,11 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 */
+    routes.get('/loopSearch/:search', function(request, response) {
+        scopusController.loopSearch(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     return routes;
 };
