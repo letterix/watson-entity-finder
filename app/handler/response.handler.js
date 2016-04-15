@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 var errorHandler = require('./error.handler');
 var msg = require('./message.handler');
 var config = require('config');
-var xlmToJs = Promise.promisifyAll(require('xml2js'));
+var xmlToJs = Promise.promisifyAll(require('xml2js'));
 
 
 // PARSING
@@ -120,8 +120,7 @@ function parseBody(response) {
 
 function parseBodyXml(response) {
     var body = response.body || '{}';
-    console.log("The body: " + xlmToJs.parseStringAsync);
-    return xlmToJs.parseStringAsync(body);
+    return xmlToJs.parseStringAsync(body);
 }
 
 
