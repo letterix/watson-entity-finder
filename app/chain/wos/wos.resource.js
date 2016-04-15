@@ -90,7 +90,7 @@ function authAndSearch(searchOptions) {
           .then(function(res) {
               sid = res['soap:Envelope']['soap:Body'][0]['ns2:authenticateResponse'][0]['return'][0];
               searchOptions.headers['Cookie']='SID='+sid;
-              return request(searchOptions)
+            return request(searchOptions)
                 .then(responseHandler.parsePostXml);
           })
           .catch(errorHandler.throwResourceError);
