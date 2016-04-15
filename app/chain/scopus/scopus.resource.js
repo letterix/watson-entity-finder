@@ -17,6 +17,7 @@ var scopusRetrieveAuthorUrl = config.RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL;
 var scopusRetrieveAbstractUrl = config.RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL;
 var scopusRetrieveArticleUrl = config.RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL;
 var scopusRetrieveIssnUrl = config.RESOURCE_SCOPUS_RETRIEVE_ISSN_URL;
+var scopusRetrieveIssnBatchUrl = config.RESOURCE_SCOPUS_RETRIEVE_ISSN_BATCH_URL;
 var apiKey = config.RESOURCE_SCOPUS_API_KEY;
 
 var pool = { maxSockets: 200 };
@@ -110,15 +111,24 @@ exports.retrieveIssn = function(issn, params) {
         json: true,
         gzip: true
     };
-    console.time('retrieveIssn');
-    console.log('starting a retrieveIssn request');
 
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
-        .then(function(res) {
-            console.timeEnd('retrieveIssn');
-            return res;
-        })
+        .then(responseHandler.parseGet);
+};
+
+exports.retrieveIssnBatch = function(params) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: scopusRetrieveIssnBatchUrl,
+        method: 'GET',
+        agent: false,
+        json: true,
+        gzip: true
+    };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
         .then(responseHandler.parseGet);
 };
 
@@ -131,14 +141,9 @@ exports.retrieveLink = function(link, params) {
         json: true,
         gzip: true
     };
-    console.time('retrieveLink');
 
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
-        .then(function(res) {
-            console.timeEnd('retrieveLink');
-            return res;
-        })
         .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);
 };
