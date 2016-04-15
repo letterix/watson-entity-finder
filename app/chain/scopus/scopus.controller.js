@@ -14,14 +14,16 @@ var utils = require('../../utility/utils');
 
 // DOES EXPORT
 // ====================================================
-exports.search = function(query) {
+exports.search = function(query, start) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY
         ,'httpAccept': 'application/json'
         ,'query': query
-        ,'count': 2
-        ,'date': '2010-2016'
+        ,'count': 20
+        ,'date': '2004-2016'
         ,'subj': 'MEDI'
+        ,'start': start
+//        ,'view': 'COMPLETE'
     };
 
     return scopusResource.search(params);
@@ -76,6 +78,17 @@ exports.retrieveIssn = function(issn) {
     return scopusResource.retrieveIssn(issn, params);
 };
 
+exports.retrieveIssnBatch = function(issnBatchString) {
+    var params = {
+        'apikey': config.RESOURCE_SCOPUS_API_KEY,
+        'httpAccept': 'application/json',
+        'issn': issnBatchString
+    };
+
+    // issnBatchString ex: '102615177, 102615178'
+    return scopusResource.retrieveIssnBatch(params);
+};
+
 exports.retrieveLink = function(link) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
@@ -86,102 +99,174 @@ exports.retrieveLink = function(link) {
     return scopusResource.retrieveLink(link, params);
 };
 
-// Calls with post work
+// Exports with post work
 // ====================================================
-exports.searchArticles = function(search) {
-    console.time('scopusSearch');
-    return scopusController.search(search)
-        .then(function(res) {
-            console.timeEnd('scopusSearch');
-            console.time('mapIssn');
-            return res;
-        })
-        .then(mapIssn)
-        .then(function(res) {
-            console.timeEnd('mapIssn');
-            console.time('mapAuthors');
-            return res;
-        })
-        .then(mapAuthors)
-        .then(function(res) {
-            console.timeEnd('mapAuthors');
-            return res;
-        })
+
+exports.searchArticles = function(search, numRes) {
+    return scopusController.search(search, 0)
+        .then(utils.extractFieldValue(['search-results','entry']))
+        .map(forceIssn)
+        .then(batchFetchIssn)
+        .then(groupByAuthor)
+        .then(getEntityList)
+        .then(prepareForRanking);
 };
-/*
-exports.getTradeoff = function(search) {
-    return scopusController.getInfo(search)
-        .then(tradeoffController.getDilemmas);    
+
+exports.loopSearch = function(search) {
+    var resultList = [];
+    return scopusController.search(search, 0)
+        .then(function(res) {
+                resultList.push(res);
+                var count = res['search-results']['opensearch:totalResults'] - 100;
+                console.log("count: " + count + " start: " + 100);
+                return count;
+        })
+        .then(searchLooper(search, resultList, 100))
+        .then(function(res) {
+            return res;
+        });
 }
-*/
+
+function searchLooper(search, resultList, start) {
+    return function(count) {
+        if (count > 0) { 
+            var newStart = start + 100;
+            scopusController.search(search, start)
+            .then(function(res) {
+                    resultList.push(res);
+                    count = res['search-results']['opensearch:totalResults'] - newStart;
+                    console.log("count: " + count + " start: " + newStart);
+                    return (count);
+            })
+            .then(searchLooper(search, resultList, newStart)); 
+        }   
+        else {
+            console.log("Done!")
+            return new Promise(function(resolve) {
+                return resolve(resultList);
+            })
+        }
+    }
+}
+
 // HELPER FUNCTIONS
 // ====================================================
+
 function retrieveAbstract(article) {
     return scopusController.retrieveLink(article['link'][0]['@href']);    
 }
 
-// MAP ISSN
+// BATCH FETCH ISSN
 // ====================================================
 
-function mapIssn(jsonBody) {
-    return Promise.filter(jsonBody['search-results'].entry, utils.undefinedFieldFilter('affiliation'))
-        .map(function(entry) {
-            var issn = entry['prism:eIssn'];
-            if (issn === undefined) {
-                issn = entry['prism:issn'];
-            }
-
-            return scopusController.retrieveIssn(issn)
-                .then(mapIssnData)
-                .then(utils.setFieldForObject('issn', entry))
-                .catch(function(result) {
-                    console.log("Catch in mapIssn: " + result)
-                }); // Catching undefined response from retrieveIssn
-        })
-        .filter(utils.undefinedFilter)
+function batchFetchIssn(articles) {
+    return extractIssns(articles)
+        .then(scopusController.retrieveIssnBatch)
+        .then(utils.extractFieldValue(['serial-metadata-response','entry']))
+        .map(forceIssn)
+        .then(matchIssns(articles))
+        .filter(filterUndefinedIssn);
 }
 
-function mapIssnData(issnBody) {
-    return new Promise(function(resolve, reject) {
-        var res = issnBody['serial-metadata-response']['entry'][0];
-        var result = {
-            IPP: Number(res['IPPList']['IPP'][0]['$']),
-            SJR: Number(res['SJRList']['SJR'][0]['$']),
-            SNIP: Number(res['SNIPList']['SNIP'][0]['$'])
+function extractIssns(articles) {
+    var issnBatchString = '';
+    return Promise.map(articles, function(article) {
+        issnBatchString += article['issn'] + ','; 
+    }) 
+    .then(function(res) {
+        return issnBatchString;
+    });
+}
+
+function forceIssn(entry) {
+    return new Promise(function(resolve) {
+        var issn = entry['prism:issn'];
+        if (issn === undefined) {
+            issn = entry['prism:eIssn'];
         };
+        if (issn === undefined) {
+            issn = entry['prism:isbn'];
+        };
+        issn = issn.replace('-','');
+        entry['issn'] = issn;
 
-
-        return resolve(result);
-    })
+        return resolve(entry);
+    });
 }
 
-// MAP AUTHORS
+function matchIssns(articles) {
+    return function(issnBatch) {
+        return Promise.all([utils.sortByField(articles, 'issn'), utils.sortByField(issnBatch, 'issn')])
+            .then(function() {
+                return new Promise(function(resolve) {
+                    var innerIndex = 0;
+                    for (var i = 0; i < issnBatch.length; i++) {
+                        for (var j = innerIndex; j < articles.length; j++) {
+                            if (issnBatch[i]['issn'] === articles[j]['issn']) {
+                                articles[i]['issn'] = issnBatch[j];
+                                innerIndex = j+1;
+                                break;
+                            };
+                        };
+                    };
+
+                    return resolve(articles);
+                });
+            });
+    };
+}
+
+// GROUP BY AUTHORS
 // ====================================================
 
-function mapAuthors(articles) {
+function groupByAuthor(articles) {
     var authorMap = {};
-    return Promise.map(articles, mapAuthor(authorMap))
-        .return(authorMap)
-}
-
-function mapAuthor(authorMap) {
-    return function(article) {
-        return retrieveAbstract(article)
-            .then(mapAuthorsFromAbstract(authorMap, article))
-            .catch(function(error) {
-                console.log("Catch in mapAuthor: " + error);
-            });    
-    }
-}
-
-function mapAuthorsFromAbstract(authorMap, article) {
-    return function(abstract) {
-        return Promise.map(abstract['abstracts-retrieval-response']['authors']['author'], function(author) {
-            if (!authorMap[author['@auid']]) {
-                authorMap[author['@auid']] = [];
-            }
-
-            authorMap[author['@auid']].push(article);
+    return Promise.map(articles, function(article) {
+        article['author'].forEach(function(author) {
+            if (!authorMap[author['authid']]) {
+                authorMap[author['authid']] = {
+                    articles: [],
+                    id: author['authid']                  
+                };
+            };
+            authorMap[author['authid']]['articles'].push(article);            
         });
+    })
+    .return(authorMap);
+}
+
+// GET ENTITY LIST AND PREPARE FOR RANKING
+// ====================================================
+
+function getEntityList(authorMap) {
+    return Promise.map(Object.keys(authorMap), function(id) {
+        return authorMap[id];
+    });
+}
+
+function prepareForRanking(entityList) {
+    var rank = {
+        entities: entityList,
+        rankingFields: [
+            {   fields: ['articles','issn','SJRList', 'SJR', '$'], 
+                weight: 1
+            }
+        ],
+        weightFields: [
+            {   fields: ['articles', 'prism:publicationName'], 
+                weight: 1
+            }
+        ]
     };
+
+    return new Promise(function(resolve) {
+        return resolve(rank);
+    });
+}
+
+// FILTER
+// ====================================================
+
+function filterUndefinedIssn(article) {
+    return !!article['issn']['issn'];
 }
