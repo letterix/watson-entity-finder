@@ -12,7 +12,8 @@ var config = require('config');
 var soapSearchUrl = config.RESOURCE_WOS_SOAP_SEARCH;
 var soapEnv = config.RESOURCE_WOS_SOAPENV;
 
-exports.search = function() {
+exports.search = function(params) {
+      console.log(params.substring(7));
       var soapSearchMessage = [{
           'soapenv:Envelope': [
             {  '_attr': {
@@ -26,7 +27,7 @@ exports.search = function() {
                   'woksearchlite:search': [
                     {'queryParameters': [
                           {'databaseId':'WOS'},
-                          {'userQuery':'TS=Cancer'},//Put search parameters here
+                          {'userQuery':'TS='+params.substring(6)},//Put search parameters here
                           {'queryLanguage':'en'}
                           ]
                     },

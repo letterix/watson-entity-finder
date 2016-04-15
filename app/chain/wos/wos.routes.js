@@ -9,7 +9,7 @@ var wosController = require('./wos.controller');
 
 module.exports = function(routes) {
     routes.get('/:search', function(request, response) {
-        wosController.search()
+        wosController.search(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
