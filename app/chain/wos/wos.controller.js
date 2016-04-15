@@ -13,8 +13,6 @@ var soapSearchUrl = config.RESOURCE_WOS_SOAP_SEARCH;
 var soapEnv = config.RESOURCE_WOS_SOAPENV;
 
 exports.search = function() {
-      console.log(config);
-      console.log('The search url is: ' + soapSearchUrl);
       var soapSearchMessage = [{
           'soapenv:Envelope': [
             {  '_attr': {
@@ -42,8 +40,6 @@ exports.search = function() {
             }
           ]
       }];
-
       var soapString = xml(soapSearchMessage, {});
-
       return wosResource.search(soapString);
   };

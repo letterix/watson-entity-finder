@@ -14,6 +14,5 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
-
     return routes;
 };
