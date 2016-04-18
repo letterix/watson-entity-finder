@@ -9,7 +9,7 @@ var scopusController = require('./scopus.controller');
 
 module.exports = function(routes) {
     routes.get('/:search', function(request, response) {
-        scopusController.search(request.params.search, 0)
+        scopusController.search(request.params.search, 0, 2)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
