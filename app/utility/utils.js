@@ -72,3 +72,20 @@ exports.extractFieldValue = function(fieldList) {
         });
     }
 } 
+
+exports.sameEntityFilter = function(list) {
+    return new Promise(function(resolve) {
+        list.sort(function(a,b) {
+            if (a['prism:url'] < b['prism:url']) {
+                return -1;
+            }
+            return 1;
+        });
+        for (var i = 0; i < list.length-1; i++) {
+            if (list[i]['prism:url'] === list[i+1]['prism:url']) {
+                console.log("We got a double! " + i)
+            }
+        };
+        return resolve(list);
+    });
+}
