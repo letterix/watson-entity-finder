@@ -19,11 +19,11 @@ exports.search = function(query, start) {
         'apikey': config.RESOURCE_SCOPUS_API_KEY
         ,'httpAccept': 'application/json'
         ,'query': query
-        ,'count': 20
+        ,'count': 25
         ,'date': '2004-2016'
         ,'subj': 'MEDI'
         ,'start': start
-//        ,'view': 'COMPLETE'
+        ,'view': 'COMPLETE'
     };
 
     return scopusResource.search(params);
@@ -107,8 +107,10 @@ exports.searchArticles = function(search, numRes) {
         .then(utils.extractFieldValue(['search-results','entry']))
         .map(forceIssn)
         .then(batchFetchIssn)
+        .then(utils.sameEntityFilter)
         .then(groupByAuthor)
         .then(getEntityList)
+        .map(removeDoubleArticles)
         .then(prepareForRanking);
 };
 
@@ -165,6 +167,7 @@ function batchFetchIssn(articles) {
         .then(utils.extractFieldValue(['serial-metadata-response','entry']))
         .map(forceIssn)
         .then(matchIssns(articles))
+        .filter(utils.undefinedFieldFilter('issn'))
         .filter(filterUndefinedIssn);
 }
 
@@ -187,7 +190,10 @@ function forceIssn(entry) {
         if (issn === undefined) {
             issn = entry['prism:isbn'];
         };
-        issn = issn.replace('-','');
+        if (typeof issn === 'string') {
+            issn = issn.replace('-','');
+        }
+
         entry['issn'] = issn;
 
         return resolve(entry);
@@ -203,6 +209,7 @@ function matchIssns(articles) {
                     for (var i = 0; i < issnBatch.length; i++) {
                         for (var j = innerIndex; j < articles.length; j++) {
                             if (issnBatch[i]['issn'] === articles[j]['issn']) {
+                                console.log(articles[j]['issn']);
                                 articles[i]['issn'] = issnBatch[j];
                                 innerIndex = j+1;
                                 break;
@@ -242,6 +249,22 @@ function getEntityList(authorMap) {
     return Promise.map(Object.keys(authorMap), function(id) {
         return authorMap[id];
     });
+}
+
+function removeDoubleArticles(author) {
+    var articleMap = {};
+    return Promise.each(author.articles, function(article) {
+        articleMap[article['issn']['issn']] = article;
+    })
+    .then(function() {
+        return Promise.map(Object.keys(articleMap), function(key) {
+            return articleMap[key];
+        });
+    })
+    .then(function(articles) {
+        author['articles'] = articles;
+        return author;
+    })
 }
 
 function prepareForRanking(entityList) {
