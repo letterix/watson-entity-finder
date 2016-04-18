@@ -14,12 +14,12 @@ var utils = require('../../utility/utils');
 
 // DOES EXPORT
 // ====================================================
-exports.search = function(query, start) {
+exports.search = function(query, start, count) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY
         ,'httpAccept': 'application/json'
         ,'query': query
-        ,'count': 25
+        ,'count': count
         ,'date': '2004-2016'
         ,'subj': 'MEDI'
         ,'start': start
@@ -103,7 +103,7 @@ exports.retrieveLink = function(link) {
 // ====================================================
 
 exports.searchArticles = function(search, numRes) {
-    return scopusController.search(search, 0)
+    return scopusController.search(search, 0, 25)
         .then(utils.extractFieldValue(['search-results','entry']))
         .map(forceIssn)
         .then(batchFetchIssn)
@@ -115,40 +115,52 @@ exports.searchArticles = function(search, numRes) {
 };
 
 exports.loopSearch = function(search) {
-    var resultList = [];
-    return scopusController.search(search, 0)
-        .then(function(res) {
-                resultList.push(res);
-                var count = res['search-results']['opensearch:totalResults'] - 100;
-                console.log("count: " + count + " start: " + 100);
-                return count;
-        })
-        .then(searchLooper(search, resultList, 100))
-        .then(function(res) {
-            return res;
-        });
+    return scopusController.search(search, 0, 1)
+        .then(loopSearcher(search))
+        .then(putTogetherResults)
+        .then(groupByAuthor)
+        .then(getEntityList)
+        .map(removeDoubleArticles)
+        .then(prepareForRanking);
 }
 
-function searchLooper(search, resultList, start) {
-    return function(count) {
-        if (count > 0) { 
-            var newStart = start + 100;
-            scopusController.search(search, start)
-            .then(function(res) {
-                    resultList.push(res);
-                    count = res['search-results']['opensearch:totalResults'] - newStart;
-                    console.log("count: " + count + " start: " + newStart);
-                    return (count);
-            })
-            .then(searchLooper(search, resultList, newStart)); 
-        }   
-        else {
-            console.log("Done!")
-            return new Promise(function(resolve) {
-                return resolve(resultList);
-            })
-        }
-    }
+// HELPER FUNCTIONS FOR LOOP SEARCH
+// ====================================================
+
+function loopSearcher(search) {
+    return function(res) {
+        return new Promise(function(resolve) {
+            var count = Math.floor(res['search-results']['opensearch:totalResults']/25);
+            console.log("count: " + count);
+            var resultList = [];
+            for (var i = 0; i < 6; ++i) {
+                var start = i*25;
+                resultList.push(searchAndGetIssn(search, start));
+            };
+            Promise.all(resultList).then(function() {
+                console.log("all the searchers are done");
+                resolve(resultList);
+            });
+        });
+    };
+}
+
+function searchAndGetIssn(search, start) {
+    return scopusController.search(search, start, 25)
+        .then(utils.extractFieldValue(['search-results','entry']))
+        .map(forceIssn)
+        .then(batchFetchIssn)
+        .then(utils.sameEntityFilter);
+}
+
+function putTogetherResults(results) {
+    var articleList = [];
+    return Promise.map(results, function(articles) {  
+        articles.forEach(function(article) {
+            articleList.push(article);     
+        });     
+    })
+    .return(articleList);
 }
 
 // HELPER FUNCTIONS
@@ -209,7 +221,6 @@ function matchIssns(articles) {
                     for (var i = 0; i < issnBatch.length; i++) {
                         for (var j = innerIndex; j < articles.length; j++) {
                             if (issnBatch[i]['issn'] === articles[j]['issn']) {
-                                console.log(articles[j]['issn']);
                                 articles[i]['issn'] = issnBatch[j];
                                 innerIndex = j+1;
                                 break;
