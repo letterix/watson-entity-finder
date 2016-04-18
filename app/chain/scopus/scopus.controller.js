@@ -24,7 +24,19 @@ exports.search = function(query, start, count) {
         ,'subj': 'MEDI'
         ,'start': start
         ,'view': 'COMPLETE'
+        ,'field': 'affiliation,dc:creator,dc:title,prism:issn,prism:eIssn,prism:isbn,dc:creator,affiliation,author'
     };
+
+    // SEARCH TIPS
+    /*
+    ALL("heart attack") returns documents with "heart attack" in any of the fields listed.
+    ABS(dopamine)returns documents where "dopamine" is in the document abstract.
+    The search TITLE-ABS-KEY(prion disease) returns documents where the terms appear in the title, keywords, or abstract.
+
+    AFFIL(nure?berg) finds Nuremberg, Nurenberg
+    behav* finds behave, behavior, behaviour, behavioural, behaviourism, etc.
+    *tocopherol finds α-tocopherol, γ-tocopherol , δ-tocopherol, tocopherol, tocopherols, etc.
+    */
 
     return scopusResource.search(params);
 };
@@ -82,7 +94,8 @@ exports.retrieveIssnBatch = function(issnBatchString) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
         'httpAccept': 'application/json',
-        'issn': issnBatchString
+        'issn': issnBatchString,
+        'field': 'SJR,prism:issn,prism:eIssn'
     };
 
     // issnBatchString ex: '102615177, 102615178'
@@ -130,10 +143,10 @@ exports.loopSearch = function(search) {
 function loopSearcher(search) {
     return function(res) {
         return new Promise(function(resolve) {
-            var count = Math.floor(res['search-results']['opensearch:totalResults']/25);
-            console.log("count: " + count);
+            var count = Math.ceil(res['search-results']['opensearch:totalResults']/25);
+            console.log("Available results: " + res['search-results']['opensearch:totalResults']);
             var resultList = [];
-            for (var i = 0; i < 6; ++i) {
+            for (var i = 0; i < count; ++i) {
                 var start = i*25;
                 resultList.push(searchAndGetIssn(search, start));
             };
@@ -157,7 +170,9 @@ function putTogetherResults(results) {
     var articleList = [];
     return Promise.map(results, function(articles) {  
         articles.forEach(function(article) {
-            articleList.push(article);     
+            if (article['author'] != undefined) {
+                articleList.push(article);   
+            }  
         });     
     })
     .return(articleList);
@@ -247,7 +262,9 @@ function groupByAuthor(articles) {
                     id: author['authid']                  
                 };
             };
-            authorMap[author['authid']]['articles'].push(article);            
+            var newArticle = article;
+            delete newArticle['author'];
+            authorMap[author['authid']]['articles'].push(newArticle);            
         });
     })
     .return(authorMap);
