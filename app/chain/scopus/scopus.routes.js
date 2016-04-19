@@ -60,7 +60,7 @@ module.exports = function(routes) {
     });
 */
     routes.get('/loopSearch/:search', function(request, response) {
-        scopusController.loopSearch(request.params.search)
+        scopusController.loopSearch(request.params.search, 20)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
