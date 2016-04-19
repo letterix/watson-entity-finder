@@ -34,3 +34,15 @@ exports.retrieveAbstract = function(pmid) {
 
     return pubmedResource.retrieveAbstract(params);
 };
+
+exports.authorSearch = function(query) {
+    var params = {
+        'db': 'pubmed',
+        'field': 'author',
+        'retmax': '100',
+        'retmode': 'json',
+        'term': query
+    };
+
+    return pubmedResource.authorSearch(params);
+};

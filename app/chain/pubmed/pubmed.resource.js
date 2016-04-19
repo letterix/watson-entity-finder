@@ -44,3 +44,18 @@ exports.retrieveAbstract = function(params) {
         .then(responseHandler.parseGetText)
         .catch(errorHandler.throwResourceError);
 };
+
+exports.authorSearch = function(params) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: pubmedSearchForPMID,
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);
+};

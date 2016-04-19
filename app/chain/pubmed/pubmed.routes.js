@@ -20,5 +20,11 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/author/:search', function(request, response) {
+        pubmedController.authorSearch(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     return routes;
 };
