@@ -7,6 +7,8 @@
     "RESOURCE_SCOPUS_SEARCH_URL": "http://api.elsevier.com/content/search/scopus",
     "RESOURCE_SCOPUS_SEARCH_AUTHOR_URL": "http://api.elsevier.com/content/search/author",
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_BATCH_URL": "http://api.elsevier.com/content/author",
+    "RESOURCE_RANK_URL": "http://localhost:6003/api/rank",
+    "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
     "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/",
     "RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL": "http://api.elsevier.com/content/article/eid/",
     "RESOURCE_SCOPUS_RETRIEVE_ISSN_BATCH_URL": "http://api.elsevier.com/content/serial/title",

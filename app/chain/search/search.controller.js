@@ -8,6 +8,7 @@ var Promise = require('bluebird');
 var config = require('config');
 var scopusController = require('../scopus/scopus.controller');
 var alchemyController = require('../alchemy/alchemy.controller');
+var rankController = require('../rank/rank.controller');
 var errorHandler = require('../../handler/error.handler.js');
 var utils = require('../../utility/utils');
 
@@ -15,8 +16,8 @@ var utils = require('../../utility/utils');
 // ====================================================
 
 exports.search = function(search) {
-    return scopusController.search(search)
-        .then(extractDemoEntities);
+    return scopusController.loopSearch(search)
+        .then(rankController.rank);
 };
 
 function extractEntities(jsonBody) {
