@@ -24,7 +24,7 @@ exports.search = function(query, start, count) {
         ,'subj': 'MEDI'
         ,'start': start
         ,'view': 'COMPLETE'
-        ,'field': 'affiliation,dc:creator,dc:title,prism:issn,prism:eIssn,prism:isbn,dc:creator,affiliation,author'
+        ,'field': 'affiliation,dc:creator,dc:title,prism:issn,prism:eIssn,prism:isbn,dc:creator,affiliation,author,prism:publicationName,citedby-count'
     };
 
     // SEARCH TIPS
@@ -58,6 +58,31 @@ exports.retrieveAuthor = function(id) {
     };
 
     return scopusResource.retrieveAuthor(id, params);
+};
+
+exports.retrieveAuthorBatch = function(authorBatchString) {
+    var params = {
+        'apikey': config.RESOURCE_SCOPUS_API_KEY,
+        'httpAccept': 'application/json',
+        'author_id': authorBatchString,
+        'view': 'ENHANCED'
+    };
+
+    // authorBatchString ex: '102615177, 102615178'
+    return scopusResource.retrieveAuthorBatch(params);
+};
+
+exports.retrieveAuthorHIndexBatch = function(authorBatchString) {
+    var params = {
+        'apikey': config.RESOURCE_SCOPUS_API_KEY,
+        'httpAccept': 'application/json',
+        'author_id': authorBatchString,
+        'view': 'METRICS',
+        'field': 'h-index,dc:identifier'
+    };
+
+    // authorBatchString ex: '102615177, 102615178'
+    return scopusResource.retrieveAuthorBatch(params);
 };
 
 exports.retrieveAbstract = function(title) {
@@ -120,26 +145,48 @@ exports.searchArticles = function(search, numRes) {
         .then(utils.extractFieldValue(['search-results','entry']))
         .map(forceIssn)
         .then(batchFetchIssn)
-        .then(utils.sameEntityFilter)
         .then(groupByAuthor)
         .then(getEntityList)
         .map(removeDoubleArticles)
-        .then(prepareForRanking);
+        .then(prepareForFirstRanking);
 };
 
-exports.loopSearch = function(search) {
+/**
+ * Retrieves all articles for the search query "search".
+ * Gets the issn for all articles
+ * Groups the articles by each author
+ * Lastly prepares the result for ranking
+ */
+exports.loopSearch = function(search, numRes) {
     return scopusController.search(search, 0, 1)
         .then(loopSearcher(search))
-        .then(putTogetherResults)
+        .then(putTogetherArticles)
         .then(groupByAuthor)
         .then(getEntityList)
         .map(removeDoubleArticles)
-        .then(prepareForRanking);
+        .then(prepareForFirstRanking)
+        .then(tempAfterRank) // Send to rank
+        .then(getHIndexBatches)
+        .then(prepareForSecondRanking)
+        .then(tempAfterRank) // Send to rank
+        .then(getAuthors(numRes));
+
 }
 
 // HELPER FUNCTIONS FOR LOOP SEARCH
 // ====================================================
 
+function tempAfterRank(res) {
+    return new Promise(function(resolve) {
+        resolve(res['entities']);
+    });
+}
+
+/**
+ * Takes the search query "search" and a search result object "res" as parameters.
+ * Synchronously retrieves all search results with 25 articles each for the search query "search". 
+ * When all results are retrieve it then adds them to a list and returns the list.
+ */
 function loopSearcher(search) {
     return function(res) {
         return new Promise(function(resolve) {
@@ -158,15 +205,24 @@ function loopSearcher(search) {
     };
 }
 
+/**
+ * Takes a search query "search" and a integer start as parameters.
+ * Sends out a search request with the search query "search" to rerieve 25 articles form "start".
+ * When the result is retrieve it then gets the issn for all articles.
+ */
 function searchAndGetIssn(search, start) {
     return scopusController.search(search, start, 25)
         .then(utils.extractFieldValue(['search-results','entry']))
         .map(forceIssn)
-        .then(batchFetchIssn)
-        .then(utils.sameEntityFilter);
+        .then(batchFetchIssn);
 }
 
-function putTogetherResults(results) {
+/**
+ * Takes a search query "search" and a integer start as parameters.
+ * Sends out a search request with the search query "search" to rerieve 25 articles form "start".
+ * When the result is retrieve it then gets the issn for all articles.
+ */
+function putTogetherArticles(results) {
     var articleList = [];
     return Promise.map(results, function(articles) {  
         articles.forEach(function(article) {
@@ -295,11 +351,14 @@ function removeDoubleArticles(author) {
     })
 }
 
-function prepareForRanking(entityList) {
+function prepareForFirstRanking(entityList) {
     var rank = {
         entities: entityList,
         rankingFields: [
             {   fields: ['articles','issn','SJRList', 'SJR', '$'], 
+                weight: 1
+            },
+            {   fields: ['articles','citedby-count'], 
                 weight: 1
             }
         ],
@@ -313,6 +372,121 @@ function prepareForRanking(entityList) {
     return new Promise(function(resolve) {
         return resolve(rank);
     });
+}
+
+// GET H-INDEX AND PREPARE FOR SECOND RANKING
+// ====================================================
+
+function getHIndexBatches(authors) {
+    return new Promise(function(resolve) {
+        var resultList = [];
+        var count = (authors.length/100);
+        if (count > 5) {
+            count = 5;
+        }
+        for (var i = 0; i < count; ++i) {
+            var theAuthors = authors.splice(0, 100);
+            resultList.push(extractAuthors(theAuthors)
+                            .then(scopusController.retrieveAuthorHIndexBatch)
+                            .then(matchAuthor(theAuthors)));
+        };
+        Promise.all(resultList).then(function() {
+            console.log("all the h-indexes retrieved and matched");
+            return (resultList);
+        })
+        .then(putTogetherBatches)
+        .then(function(res) {
+            resolve(res);
+        });
+    });
+}
+
+function extractAuthors(authors) {
+    var authorBatchString = '';
+    return Promise.map(authors, function(author) {
+        authorBatchString += author['id'] + ','; 
+    }) 
+    .then(function(res) {
+        return authorBatchString;
+    });
+}
+
+function matchAuthor(authors) {
+    return function(hindexes) {
+        var hindexes = hindexes['author-retrieval-response-list']['author-retrieval-response'];
+        return Promise.all([utils.sortByField(authors, 'id'), sortByAuthorID(hindexes)])
+            .then(function() {
+                return new Promise(function(resolve) {
+                    var innerIndex = 0;
+                    for (var i = 0; i < hindexes.length; i++) {
+                        for (var j = innerIndex; j < authors.length; j++) {
+                            if (hindexes[i]['coredata']['dc:identifier'] === 'AUTHOR_ID:'+authors[j]['id']) {
+                                if (authors[i]['h-index'] === undefined) {
+                                    authors[i]['h-index'] = hindexes[j]['h-index'];
+                                }
+                                else {
+                                    authors[i]['author'] = hindexes[j];
+                                }
+                                innerIndex = j+1;
+                                break;
+                            };
+                        };
+                    };
+
+                    return resolve(authors);
+                });
+            }); 
+    }
+}
+
+function sortByAuthorID(hindexes) {
+    return new Promise(function(resolve) {
+        hindexes.sort(function(a, b) {
+            if (a['coredata']['dc:identifier'] < b['coredata']['dc:identifier']) {
+                return -1;
+            }
+            return 1;
+        });
+
+        return resolve(hindexes);
+    });
+}
+
+function putTogetherBatches(batches) {
+    var resultList = [];
+    return Promise.map(batches, function(batch) {  
+        batch.forEach(function(article) {
+            resultList.push(article);   
+        });     
+    })
+    .return(resultList);
+}
+
+function prepareForSecondRanking(entityList) {
+    var rank = {
+        entities: entityList,
+        rankingFields: [
+            {   fields: ['h-index'], 
+                weight: 1
+            }
+        ]
+    };
+
+    return new Promise(function(resolve) {
+        return resolve(rank);
+    });
+}
+
+// GET AUTHORS
+// ====================================================
+
+function getAuthors(numRes) {
+    return function(authors) {
+        var topAuthors = authors.splice(0, numRes);
+        return extractAuthors(topAuthors)
+            .then(scopusController.retrieveAuthorBatch)
+            .then(matchAuthor(topAuthors));
+    }
 }
 
 // FILTER
