@@ -12,6 +12,7 @@
     "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/",
     "RESOURCE_PUBMED_BASE_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
     "RESOURCE_PUBMED_SEARCH_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
-    "RESOURCE_PUBMED_SUMMARY_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+    "RESOURCE_PUBMED_SUMMARY_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+    "RESOURCE_PUBMED_FETCH_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 }
 
