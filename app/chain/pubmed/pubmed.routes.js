@@ -20,6 +20,12 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/retrieveAbstractText/:pmid', function(request, response) {
+        pubmedController.retrieveAbstractText(request.params.pmid)
+            .then(responseHandler.sendTextResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     routes.get('/author/:search', function(request, response) {
         pubmedController.authorSearch(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
