@@ -27,7 +27,7 @@ exports.searchPMID = function(query) {
 exports.retrieveAbstract = function(pmid) {
     var params = {
         'db': 'pubmed',
-        'retmode': 'text',
+        'retmode': 'json',
         'rettype': 'abstract',
         'id': pmid
     };

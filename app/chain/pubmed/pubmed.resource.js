@@ -12,8 +12,8 @@ var errorHandler = require('../../handler/error.handler');
 var utils = require('../../utility/utils');
 
 var pubmedBaseUrl = config.RESOURCE_PUBMED_BASE_URL;
-var pubmedFetchAbstractByPMID = config.RESOURCE_PUBMED_FETCH_ABSTRACT_PMID;
-var pubmedSearchForPMID = config.RESOURCE_PUBMED_SEARCH_PMID;
+var pubmedFetchAbstractByPMID = config.RESOURCE_PUBMED_SUMMARY_URL;
+var pubmedSearchForPMID = config.RESOURCE_PUBMED_SEARCH_URL;
 
 
 exports.searchPMID = function(params) {
