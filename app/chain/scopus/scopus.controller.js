@@ -6,7 +6,7 @@
  */
 var Promise = require('bluebird');
 var scopusResource = require('./scopus.resource');
-var scopusController = require('./scopus.controller');
+var rankController = require('../rank/rank.controller');
 var tradeoffController = require('../tradeoff-analytics/tradeoff.controller');
 var errorHandler = require('../../handler/error.handler.js');
 var config = require('config');
@@ -141,7 +141,7 @@ exports.retrieveLink = function(link) {
 // ====================================================
 
 exports.searchArticles = function(search, numRes) {
-    return scopusController.search(search, 0, 25)
+    return exports.search(search, 0, 25)
         .then(utils.extractFieldValue(['search-results','entry']))
         .map(forceIssn)
         .then(batchFetchIssn)
@@ -158,19 +158,18 @@ exports.searchArticles = function(search, numRes) {
  * Lastly prepares the result for ranking
  */
 exports.loopSearch = function(search, numRes) {
-    return scopusController.search(search, 0, 1)
+    return exports.search(search, 0, 1)
         .then(loopSearcher(search))
         .then(putTogetherArticles)
         .then(groupByAuthor)
         .then(getEntityList)
         .map(removeDoubleArticles)
         .then(prepareForFirstRanking)
-        .then(tempAfterRank) // Send to rank
+        .then(rankController.rank) // Send to rank
         .then(getHIndexBatches)
         .then(prepareForSecondRanking)
-        .then(tempAfterRank) // Send to rank
+        .then(rankController.rank) // Send to rank
         .then(getAuthors(numRes));
-
 }
 
 // HELPER FUNCTIONS FOR LOOP SEARCH
@@ -184,7 +183,7 @@ function tempAfterRank(res) {
 
 /**
  * Takes the search query "search" and a search result object "res" as parameters.
- * Synchronously retrieves all search results with 25 articles each for the search query "search". 
+ * Synchronously retrieves all search results with 25 articles each for the search query "search".
  * When all results are retrieve it then adds them to a list and returns the list.
  */
 function loopSearcher(search) {
@@ -211,7 +210,7 @@ function loopSearcher(search) {
  * When the result is retrieve it then gets the issn for all articles.
  */
 function searchAndGetIssn(search, start) {
-    return scopusController.search(search, start, 25)
+    return exports.search(search, start, 25)
         .then(utils.extractFieldValue(['search-results','entry']))
         .map(forceIssn)
         .then(batchFetchIssn);
@@ -224,12 +223,12 @@ function searchAndGetIssn(search, start) {
  */
 function putTogetherArticles(results) {
     var articleList = [];
-    return Promise.map(results, function(articles) {  
+    return Promise.map(results, function(articles) {
         articles.forEach(function(article) {
-            if (article['author'] != undefined) {
-                articleList.push(article);   
-            }  
-        });     
+            if (!!article['author']) {
+                articleList.push(article);
+            }
+        });
     })
     .return(articleList);
 }
@@ -238,7 +237,7 @@ function putTogetherArticles(results) {
 // ====================================================
 
 function retrieveAbstract(article) {
-    return scopusController.retrieveLink(article['link'][0]['@href']);    
+    return exports.retrieveLink(article['link'][0]['@href']);
 }
 
 // BATCH FETCH ISSN
@@ -246,7 +245,7 @@ function retrieveAbstract(article) {
 
 function batchFetchIssn(articles) {
     return extractIssns(articles)
-        .then(scopusController.retrieveIssnBatch)
+        .then(exports.retrieveIssnBatch)
         .then(utils.extractFieldValue(['serial-metadata-response','entry']))
         .map(forceIssn)
         .then(matchIssns(articles))
@@ -257,8 +256,8 @@ function batchFetchIssn(articles) {
 function extractIssns(articles) {
     var issnBatchString = '';
     return Promise.map(articles, function(article) {
-        issnBatchString += article['issn'] + ','; 
-    }) 
+        issnBatchString += article['issn'] + ',';
+    })
     .then(function(res) {
         return issnBatchString;
     });
@@ -315,12 +314,12 @@ function groupByAuthor(articles) {
             if (!authorMap[author['authid']]) {
                 authorMap[author['authid']] = {
                     articles: [],
-                    id: author['authid']                  
+                    id: author['authid']
                 };
             };
             var newArticle = article;
             delete newArticle['author'];
-            authorMap[author['authid']]['articles'].push(newArticle);            
+            authorMap[author['authid']]['articles'].push(newArticle);
         });
     })
     .return(authorMap);
@@ -355,15 +354,15 @@ function prepareForFirstRanking(entityList) {
     var rank = {
         entities: entityList,
         rankingFields: [
-            {   fields: ['articles','issn','SJRList', 'SJR', '$'], 
+            {   fields: ['articles','issn','SJRList', 'SJR', '$'],
                 weight: 1
             },
-            {   fields: ['articles','citedby-count'], 
+            {   fields: ['articles','citedby-count'],
                 weight: 1
             }
         ],
         weightFields: [
-            {   fields: ['articles', 'prism:publicationName'], 
+            {   fields: ['articles', 'prism:publicationName'],
                 weight: 1
             }
         ]
@@ -387,7 +386,7 @@ function getHIndexBatches(authors) {
         for (var i = 0; i < count; ++i) {
             var theAuthors = authors.splice(0, 100);
             resultList.push(extractAuthors(theAuthors)
-                            .then(scopusController.retrieveAuthorHIndexBatch)
+                            .then(exports.retrieveAuthorHIndexBatch)
                             .then(matchAuthor(theAuthors)));
         };
         Promise.all(resultList).then(function() {
@@ -404,8 +403,8 @@ function getHIndexBatches(authors) {
 function extractAuthors(authors) {
     var authorBatchString = '';
     return Promise.map(authors, function(author) {
-        authorBatchString += author['id'] + ','; 
-    }) 
+        authorBatchString += author['id'] + ',';
+    })
     .then(function(res) {
         return authorBatchString;
     });
@@ -435,7 +434,7 @@ function matchAuthor(authors) {
 
                     return resolve(authors);
                 });
-            }); 
+            });
     }
 }
 
@@ -454,10 +453,10 @@ function sortByAuthorID(hindexes) {
 
 function putTogetherBatches(batches) {
     var resultList = [];
-    return Promise.map(batches, function(batch) {  
+    return Promise.map(batches, function(batch) {
         batch.forEach(function(article) {
-            resultList.push(article);   
-        });     
+            resultList.push(article);
+        });
     })
     .return(resultList);
 }
@@ -466,10 +465,11 @@ function prepareForSecondRanking(entityList) {
     var rank = {
         entities: entityList,
         rankingFields: [
-            {   fields: ['h-index'], 
+            {   fields: ['h-index'],
                 weight: 1
             }
-        ]
+        ],
+        weightFields: []
     };
 
     return new Promise(function(resolve) {
@@ -484,7 +484,7 @@ function getAuthors(numRes) {
     return function(authors) {
         var topAuthors = authors.splice(0, numRes);
         return extractAuthors(topAuthors)
-            .then(scopusController.retrieveAuthorBatch)
+            .then(exports.retrieveAuthorBatch)
             .then(matchAuthor(topAuthors));
     }
 }

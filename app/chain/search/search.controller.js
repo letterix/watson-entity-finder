@@ -15,9 +15,15 @@ var utils = require('../../utility/utils');
 // DOES EXPORT
 // ====================================================
 
+
+/**
+ * Master function that controls the combined flows of all the controllers
+ *
+ * @param search: the search string
+ * @returns: a list of ranked entities
+ */
 exports.search = function(search) {
-    return scopusController.loopSearch(search)
-        .then(rankController.rank);
+    return scopusController.loopSearch(search, 20);
 };
 
 function extractEntities(jsonBody) {

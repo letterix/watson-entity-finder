@@ -59,7 +59,7 @@ exports.sortByField = function(list, field) {
 
         return resolve(list);
     });
-} 
+}
 
 exports.extractFieldValue = function(fieldList) {
     return function(value) {
@@ -71,7 +71,7 @@ exports.extractFieldValue = function(fieldList) {
             return resolve(value);
         });
     }
-} 
+}
 
 exports.sameEntityFilter = function(list) {
     return new Promise(function(resolve) {
@@ -88,4 +88,10 @@ exports.sameEntityFilter = function(list) {
         };
         return resolve(list);
     });
+}
+
+exports.extractFieldForObject = function(field) {
+    return function(obj) {
+        return obj[field];
+    }
 }
