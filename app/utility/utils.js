@@ -20,6 +20,10 @@ exports.setUrlParamsForOptions = function(params, options) {
     })
 };
 
+exports.extractValuesFromMap = function(map) {
+  return Promise.map(Object.keys(map), function(key) {return map[key]});
+}
+
 
 // HELPER FUNCTIONS
 exports.printChain = function(res) {
