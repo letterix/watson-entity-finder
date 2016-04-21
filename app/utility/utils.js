@@ -30,4 +30,3 @@ exports.printChain = function(res) {
 exports.replaceAll = function(string, find, replace) {
     return string.split(find).join(replace);
 };
-
