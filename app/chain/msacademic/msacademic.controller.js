@@ -1,0 +1,47 @@
+/*eslint-env node */
+'use strict';
+
+/**
+ * Module dependencies.
+ */
+var Promise = require('bluebird');
+var msResource = require('./msacademic.resource');
+var errorHandler = require('../../handler/error.handler');
+var config = require('config');
+var utils = require('../../utility/utils');
+
+// DOES EXPORT
+// ====================================================
+
+exports.search = function(query) {
+    var params = {
+        'model' : 'latest',
+        'count' : '500', //getting 500 articles as default
+        'attributes' : 'Ti,CC,AA.AuN,AA.AuId,AA.AfN,J.JN',//Getting titles for now
+        'expr': 'AND(Y>2010, '+query+')'
+    };
+    return msResource.search(params)
+    .then(parseAcademicResult)
+    .then(utils.extractValuesFromMap);
+};
+
+// DOES NOT EXPORT
+// ====================================================
+
+function parseAcademicResult(searchResult){
+    var authors = {};
+    return Promise.map(searchResult['entities'], function(entity) {
+      return Promise.map(entity['AA'], function(author) {
+        if(!authors[author['AuId']]){
+          authors[author['AuId']] = {
+            'name' : author['AuN'],
+            'id' : author['AuId'],
+            'affiliation' : author['AfN'],
+            'articles' : []
+          };
+        };
+        authors[author['AuId']]['articles'].push(entity['Ti']);
+      })
+    })
+    .return(authors);
+}
