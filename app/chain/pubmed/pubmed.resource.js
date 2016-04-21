@@ -43,7 +43,7 @@ exports.retrieveAbstract = function(params) {
 
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
-        .then(responseHandler.parseGetText)
+        .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);
 };
 

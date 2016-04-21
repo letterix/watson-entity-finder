@@ -32,5 +32,11 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/retrieveAuthors/:search', function(request, response) {
+        pubmedController.retrieveAuthors(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     return routes;
 };
