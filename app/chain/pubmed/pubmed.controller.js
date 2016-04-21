@@ -62,24 +62,12 @@ exports.authorSearch = function(query) {
     return pubmedResource.authorSearch(params);
 };
 
-exports.retrieveAuthors = function(pmid) {
-    var params = {
-        'db': 'pubmed',
-        'retmode': 'json',
-        'rettype': 'abstract',
-        'httpAccept': 'application/json',
-        'id': pmid
-    };
-
-    return pubmedResource.retrieveAbstract(params)
-        .then(extractAuthors);
-};
 // Calls with post work
 // ====================================================
-/*exports.retrieveAuthors = function (pmid){
+exports.retrieveAuthors = function (pmid){
     return pubmedController.retrieveAbstract(pmid)
         .then(extractAuthors);
-};*/
+};
 
 // HELPER FUNCTIONS
 // ====================================================
