@@ -26,6 +26,9 @@ exports.searchPMID = function(query) {
     return pubmedResource.searchPMID(params);
 };
 
+/* Function for searching for a specific doi
+The doi need to be parsed before search, replacing '/' with %2F
+ */
 exports.searchDoi = function(query) {
     var params = {
         'db': 'pubmed',
@@ -109,7 +112,7 @@ function extractIssn(jsonBody){
     var arr = [];
 
     jsonBody.result.uids.forEach(function (key){
-        if(jsonBody.result[key].issn == ""){
+        if(jsonBody.result[key].issn === ""){
             console.log("ISSN not found in Abstract");
             return;
         }
@@ -123,6 +126,9 @@ function extractDoi(jsonBody){
 
     jsonBody.result.uids.forEach(function (key){
         jsonBody.result[key]['articleids'].map(function(info){
+            if(info.idtype === "doi" && info.value === ""){
+                console.log("Doi not found in PMID: "+[key]);
+            }
             if(info.idtype === "doi"){
                 arr.push(info.value);
             }
