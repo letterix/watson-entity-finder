@@ -32,6 +32,21 @@ exports.searchPMID = function(params) {
         .catch(errorHandler.throwResourceError);
 };
 
+exports.searchDoi = function(params) {
+    var options = {
+        resolveWithFullResponse: true,
+        uri: pubmedSearchForPMID,
+        method: 'GET',
+        json: true,
+        gzip: true
+    };
+
+    return utils.setUrlParamsForOptions(params, options)
+        .then(request)
+        .then(responseHandler.parseGet)
+        .catch(errorHandler.throwResourceError);
+};
+
 exports.retrieveAbstract = function(params) {
     var options = {
         resolveWithFullResponse: true,
