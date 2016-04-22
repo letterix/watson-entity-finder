@@ -64,7 +64,11 @@ function prepareForFirstRanking(entityList) {
         weightFields: [
             {   fields: ['articles', 'journal'],
                 weight: 1
+            },
+            {   fields: ['affiliation'],
+                weight: 1
             }
+
         ]
     };
 
