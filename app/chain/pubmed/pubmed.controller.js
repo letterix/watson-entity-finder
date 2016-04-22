@@ -26,6 +26,18 @@ exports.searchPMID = function(query) {
     return pubmedResource.searchPMID(params);
 };
 
+exports.searchDoi = function(query) {
+    var params = {
+        'db': 'pubmed',
+        'retmax': '100',
+        'retmode': 'json',
+        'httpAccept': 'application/json',
+        'term': query
+    };
+
+    return pubmedResource.searchDoi(params);
+};
+
 exports.retrieveAbstract = function(pmid) {
     var params = {
         'db': 'pubmed',
@@ -69,14 +81,54 @@ exports.retrieveAuthors = function (pmid){
         .then(extractAuthors);
 };
 
+exports.retrieveIssn = function (pmid){
+    return pubmedController.retrieveAbstract(pmid)
+        .then(extractIssn);
+}
+
+exports.retrieveDoi = function (pmid){
+    return pubmedController.retrieveAbstract(pmid)
+        .then(extractDoi);
+}
+
 // HELPER FUNCTIONS
 // ====================================================
-function extractAuthors(jsonBody) {
+function extractAuthors(jsonBody){
     var arr = [];
 
     jsonBody.result.uids.forEach(function (key){
         jsonBody.result[key]['authors'].map(function(info){
             arr.push(info.name);
+        });
+    });
+
+    return arr;
+};
+
+function extractIssn(jsonBody){
+    var arr = [];
+
+    jsonBody.result.uids.forEach(function (key){
+        if(jsonBody.result[key].issn == ""){
+            console.log("ISSN not found in Abstract");
+            return;
+        }
+        arr.push(jsonBody.result[key].issn);
+        });
+    return arr;
+}
+
+function extractDoi(jsonBody){
+    var arr = [];
+
+    jsonBody.result.uids.forEach(function (key){
+        jsonBody.result[key]['articleids'].map(function(info){
+            if(info.idtype === "doi"){
+                arr.push(info.value);
+            }
+            else{
+                return;
+            }
         });
     });
 
