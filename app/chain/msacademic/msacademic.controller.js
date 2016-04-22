@@ -5,9 +5,9 @@
  * Module dependencies.
  */
 var Promise = require('bluebird');
+var config = require('config');
 var msResource = require('./msacademic.resource');
 var errorHandler = require('../../handler/error.handler');
-var config = require('config');
 var utils = require('../../utility/utils');
 
 // DOES EXPORT

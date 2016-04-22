@@ -13,6 +13,6 @@ module.exports = function(routes) {
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
   });
-
+  
     return routes;
 };
