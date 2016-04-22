@@ -127,7 +127,6 @@ function extractDoi(jsonBody){
                 arr.push(info.value);
             }
             else{
-                console.log("Doi not found in "+[key]);
                 return;
             }
         });
