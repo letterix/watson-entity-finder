@@ -14,6 +14,12 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
+    routes.get('/searchDoi/:search', function(request, response) {
+        pubmedController.searchDoi(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
     routes.get('/retrieveAbstract/:pmid', function(request, response) {
         pubmedController.retrieveAbstract(request.params.pmid)
             .then(responseHandler.sendTextResponse(response))
@@ -34,6 +40,18 @@ module.exports = function(routes) {
 
     routes.get('/retrieveAuthors/:search', function(request, response) {
         pubmedController.retrieveAuthors(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/retrieveIssn/:search', function(request, response) {
+        pubmedController.retrieveIssn(request.params.search)
+            .then(responseHandler.sendJsonResponse(response))
+            .catch(responseHandler.sendErrorResponse(response));
+    });
+
+    routes.get('/retrieveDoi/:search', function(request, response) {
+        pubmedController.retrieveDoi(request.params.search)
             .then(responseHandler.sendJsonResponse(response))
             .catch(responseHandler.sendErrorResponse(response));
     });
