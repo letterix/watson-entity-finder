@@ -35,13 +35,40 @@ function parseAcademicResult(searchResult){
         if(!authors[author['AuId']]){
           authors[author['AuId']] = {
             'name' : author['AuN'],
-            'id' : author['AuId'],
             'affiliation' : author['AfN'],
+            'id' : author['AuId'],
             'articles' : []
           };
         };
-        authors[author['AuId']]['articles'].push(entity['Ti']);
-      })
+        if(!authors[author['AuId']]['affiliation']){
+          authors[author['AuId']]['affiliation'] = author['AfN'];
+        }
+        authors[author['AuId']]['articles'].push({
+          'title' : entity['Ti'],
+          'citationCount' : entity['CC'],
+          'journal' : (entity['J']) ? entity['J']['JN'] : 'unclear'
+        });
+      });
     })
     .return(authors);
+}
+
+function prepareForFirstRanking(entityList) {
+    var rank = {
+        entities: entityList,
+        rankingFields: [
+            {   fields: ['articles','citationCount'],
+                weight: 1
+            }
+        ],
+        weightFields: [
+            {   fields: ['articles', 'journal'],
+                weight: 1
+            }
+        ]
+    };
+
+    return new Promise(function(resolve) {
+        return resolve(rank);
+    });
 }
