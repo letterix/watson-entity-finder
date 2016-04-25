@@ -74,7 +74,6 @@ function prepareForFirstRanking(entityList) {
             {   fields: ['affiliation'],
                 weight: 1
             }
-
         ]
     };
 
