@@ -48,7 +48,7 @@ function parseAcademicResult(searchResult){
         authors[author['AuId']]['articles'].push({
           'title' : entity['Ti'],
           'citationCount' : entity['CC'],
-          'journal' : (entity['J']) ? entity['J']['JN'] : 'unclear'
+          'journalName' : (entity['J']) ? entity['J']['JN'] : null
         });
       });
     })
@@ -65,7 +65,7 @@ function prepareForFirstRanking(entityList) {
             }
         ],
         weightFields: [
-            {   fields: ['articles', 'journal'],
+            {   fields: ['articles', 'journalName'],
                 weight: 1
             },
             {   fields: ['affiliation'],
