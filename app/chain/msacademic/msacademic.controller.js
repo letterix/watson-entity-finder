@@ -9,6 +9,8 @@ var config = require('config');
 var msResource = require('./msacademic.resource');
 var errorHandler = require('../../handler/error.handler');
 var utils = require('../../utility/utils');
+var noOfArticlesReturned = config.RESOURCE_MSACADEMIC_NO_OF_ARTICLES_RETURNED;
+var searchReturnParameters = config.RESOURCE_MSACADEMIC_SEARCH_RETURN_PARAMETERS;
 
 // DOES EXPORT
 // ====================================================
@@ -16,8 +18,8 @@ var utils = require('../../utility/utils');
 exports.search = function(query) {
     var params = {
         'model' : 'latest',
-        'count' : '500', //getting 500 articles as default
-        'attributes' : 'Ti,CC,AA.AuN,AA.AuId,AA.AfN,J.JN',//Getting titles for now
+        'count' : noOfArticlesReturned, //getting 500 articles as default
+        'attributes' : searchReturnParameters,//Getting titles for now
         'expr': 'AND(Y>2010, '+query+')'
     };
     return msResource.search(params)
@@ -25,9 +27,9 @@ exports.search = function(query) {
     .then(utils.extractValuesFromMap);
 };
 
-// DOES NOT EXPORT
-// ====================================================
-
+//Parses the result from the search into a kv-map mapping the ID of an author
+//to information about him and any articles he contributed to returned by the
+//search.
 function parseAcademicResult(searchResult){
     var authors = {};
     return Promise.map(searchResult['entities'], function(entity) {
@@ -53,6 +55,7 @@ function parseAcademicResult(searchResult){
     .return(authors);
 }
 
+//Formats the author->[article] map into the format needed for the ranker
 function prepareForFirstRanking(entityList) {
     var rank = {
         entities: entityList,
