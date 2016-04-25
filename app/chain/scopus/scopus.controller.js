@@ -308,6 +308,7 @@ function matchIssns(articles) {
 // ====================================================
 
 function groupByAuthor(articles) {
+    var k = "apa";
     var authorMap = {};
     return Promise.map(articles, function(article) {
         article['author'].forEach(function(author) {
@@ -317,6 +318,10 @@ function groupByAuthor(articles) {
                     id: author['authid']
                 };
             };
+            if(k=="apa"){
+              console.log(article);
+              k = "nope";
+            }
             var newArticle = article;
             delete newArticle['author'];
             authorMap[author['authid']]['articles'].push(newArticle);
