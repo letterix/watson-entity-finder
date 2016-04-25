@@ -13,5 +13,10 @@
     "RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL": "http://api.elsevier.com/content/article/eid/",
     "RESOURCE_SCOPUS_RETRIEVE_ISSN_BATCH_URL": "http://api.elsevier.com/content/serial/title",
     "RESOURCE_SCIDIR_SEARCH_URL": "http://api.elsevier.com/content/search/scidir",
-    "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/"
+    "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/",
+    "RESOURCE_MSACADEMIC_SEARCH_URL" : "http://api.projectoxford.ai/academic/v1.0/evaluate",
+    "RESOURCE_MSACADEMIC_API_KEY" : "369cba5694714fd7baef564ee0b2cb2f",
+    "RESOURCE_MSACADEMIC_NO_OF_ARTICLES_RETURNED" : "500",
+    "RESOURCE_MSACADEMIC_SEARCH_RETURN_PARAMETERS" : "Ti,CC,AA.AuN,AA.AuId,AA.AfN,J.JN"
+
 }
