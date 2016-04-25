@@ -25,6 +25,7 @@ exports.search = function(params) {
         json: true,
         gzip: true
     };
+    
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
         .then(responseHandler.parseGet)

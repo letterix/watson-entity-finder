@@ -22,6 +22,7 @@ exports.search = function(query) {
         'attributes' : searchReturnParameters,//Getting titles for now
         'expr': 'AND(Y>2010, '+query+')'
     };
+
     return msResource.search(params)
     .then(parseAcademicResult)
     .then(utils.extractValuesFromMap);
@@ -34,17 +35,19 @@ function parseAcademicResult(searchResult){
     var authors = {};
     return Promise.map(searchResult['entities'], function(entity) {
       return Promise.map(entity['AA'], function(author) {
-        if(!authors[author['AuId']]){
+        if (!authors[author['AuId']]) {
           authors[author['AuId']] = {
             'name' : author['AuN'],
             'affiliation' : author['AfN'],
             'id' : author['AuId'],
             'articles' : []
           };
-        };
-        if(!authors[author['AuId']]['affiliation']){
+        }
+
+        if (!authors[author['AuId']]['affiliation']) {
           authors[author['AuId']]['affiliation'] = author['AfN'];
         }
+
         authors[author['AuId']]['articles'].push({
           'title' : entity['Ti'],
           'citationCount' : entity['CC'],
@@ -75,7 +78,5 @@ function prepareForFirstRanking(entityList) {
         ]
     };
 
-    return new Promise(function(resolve) {
-        return resolve(rank);
-    });
+    return rank;
 }
