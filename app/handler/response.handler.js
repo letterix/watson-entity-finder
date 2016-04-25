@@ -105,7 +105,6 @@ function parseBody(response) {
         if (typeof body === 'string') {
             body = JSON.parse(body) || null;
         }
-
         return resolve(body);
     });
 }

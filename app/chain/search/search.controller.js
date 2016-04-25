@@ -8,15 +8,22 @@ var Promise = require('bluebird');
 var config = require('config');
 var scopusController = require('../scopus/scopus.controller');
 var alchemyController = require('../alchemy/alchemy.controller');
+var rankController = require('../rank/rank.controller');
 var errorHandler = require('../../handler/error.handler.js');
 var utils = require('../../utility/utils');
 
 // DOES EXPORT
 // ====================================================
 
+
+/**
+ * Master function that controls the combined flows of all the controllers
+ *
+ * @param search: the search string
+ * @returns: a list of ranked entities
+ */
 exports.search = function(search) {
-    return scopusController.search(search)
-        .then(extractDemoEntities);
+    return scopusController.loopSearch(search, 20);
 };
 
 function extractEntities(jsonBody) {
