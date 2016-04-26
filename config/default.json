@@ -1,22 +1,34 @@
 {
     "RESOURCE_URL_WATSON": "http://some/url.com",
+    
+    // IBM alchemy service
     "RESOURCE_ALCHEMY_API_KEY": "9da318e13054c45454b95f3d9db450041f69a507",
     "RESOURCE_ALCHEMY_URL": "http://gateway-a.watsonplatform.net/calls/url/URLGetRankedNamedEntities",
     "RESOURCE_ALCHEMY_TEXT_URL": "http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities",
+    
+    // ranking process
+    "RESOURCE_RANK_URL": "http://localhost:6003/api/rank",
+
+    // scopus database
     "RESOURCE_SCOPUS_API_KEY": "0fa3758c6732da42117e1983ff7c4e10",
     "RESOURCE_SCOPUS_SEARCH_URL": "http://api.elsevier.com/content/search/scopus",
     "RESOURCE_SCOPUS_SEARCH_AUTHOR_URL": "http://api.elsevier.com/content/search/author",
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_BATCH_URL": "http://api.elsevier.com/content/author",
-    "RESOURCE_RANK_URL": "http://localhost:6003/api/rank",
     "RESOURCE_SCOPUS_RETRIEVE_AUTHOR_URL": "http://api.elsevier.com/content/author/author_id/",
     "RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL": "http://api.elsevier.com/content/abstract/doi/",
     "RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL": "http://api.elsevier.com/content/article/eid/",
     "RESOURCE_SCOPUS_RETRIEVE_ISSN_BATCH_URL": "http://api.elsevier.com/content/serial/title",
     "RESOURCE_SCIDIR_SEARCH_URL": "http://api.elsevier.com/content/search/scidir",
     "RESOURCE_SCIDIR_FULL_TEXT_URL": "http://api.elsevier.com/content/article/pii/",
+   
+    // microsoft academic database
     "RESOURCE_MSACADEMIC_SEARCH_URL" : "http://api.projectoxford.ai/academic/v1.0/evaluate",
     "RESOURCE_MSACADEMIC_API_KEY" : "369cba5694714fd7baef564ee0b2cb2f",
     "RESOURCE_MSACADEMIC_NO_OF_ARTICLES_RETURNED" : "500",
-    "RESOURCE_MSACADEMIC_SEARCH_RETURN_PARAMETERS" : "Ti,CC,AA.AuN,AA.AuId,AA.AfN,J.JN"
+    "RESOURCE_MSACADEMIC_SEARCH_RETURN_PARAMETERS" : "Ti,CC,AA.AuN,AA.AuId,AA.AfN,J.JN",
 
+    // concept insight service 
+    // credentials found from bluemix service under tab 'show credentials'
+    "RESOURCE_CONCEPTINSIGHT_USERNAME" : "bc37dcee-8825-4cfb-9e35-c5b75325fc7f",
+    "RESOURCE_CONCEPTINSIGHT_PASSWORD" : "npZ67eZCYSpu" 
 }
