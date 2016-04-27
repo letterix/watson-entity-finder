@@ -24,8 +24,8 @@ exports.search = function(query) {
     };
 
     return msResource.search(params)
-    .then(getAuthorIdToArticleMap)
-    .then(utils.extractValuesFromMap);
+    .then(getAuthorIdToAuthorMap)
+    .then(composeRankFormat);
 };
 /**
 * DESCRIPTION: Takes the result from a msAcademic search and returns a map of
@@ -47,7 +47,7 @@ exports.search = function(query) {
 * where the authorId is unique integers and the <author> objects follows the
 * pattern explained in the DESCRIPTION.
 */
-function getAuthorIdToArticleMap(searchResult){
+function getAuthorIdToAuthorMap(searchResult){
     var authors = {};
     return Promise.map(searchResult['entities'], function(entity) {
       return Promise.map(entity['AA'], function(author) {
@@ -83,7 +83,7 @@ function getAuthorIdToArticleMap(searchResult){
 * @return: an object containing the map along with fields specifying how the
 *         authors should be ranked.
 */
-function prepareForFirstRanking(entityList) {
+function composeRankFormat(entityList) {
     var rank = {
         entities: entityList,
         rankingFields: [
