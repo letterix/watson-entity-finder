@@ -24,8 +24,8 @@ exports.search = function(query) {
     };
 
     return msResource.search(params)
-    .then(getAuthorIdToArticleMap);
-    //.then(utils.extractValuesFromMap);
+    .then(getAuthorIdToArticleMap)
+    .then(utils.extractValuesFromMap);
 };
 /**
 * DESCRIPTION: Takes the result from a msAcademic search and returns a map of
