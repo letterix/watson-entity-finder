@@ -24,8 +24,8 @@ exports.search = function(query) {
     };
 
     return msResource.search(params)
-    .then(parseAcademicResult)
-    .then(utils.extractValuesFromMap);
+    .then(getAuthorIdToArticleMap);
+    //.then(utils.extractValuesFromMap);
 };
 /**
 * DESCRIPTION: Takes the result from a msAcademic search and returns a map of
@@ -47,7 +47,7 @@ exports.search = function(query) {
 * where the authorId is unique integers and the <author> objects follows the
 * pattern explained in the DESCRIPTION.
 */
-function parseAcademicResult(searchResult){
+function getAuthorIdToArticleMap(searchResult){
     var authors = {};
     return Promise.map(searchResult['entities'], function(entity) {
       return Promise.map(entity['AA'], function(author) {
@@ -67,7 +67,8 @@ function parseAcademicResult(searchResult){
         authors[author['AuId']]['articles'].push({
           'title' : entity['Ti'],
           'citationCount' : entity['CC'],
-          'journalName' : (entity['J']) ? entity['J']['JN'] : null
+          'journalName' : (entity['J']) ? entity['J']['JN'] : null,
+          'DOI' : (entity['E']) ? JSON.parse(entity['E'])['DOI'] : null
         });
       });
     })
