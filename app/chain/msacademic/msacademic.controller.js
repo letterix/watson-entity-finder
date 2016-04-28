@@ -24,14 +24,30 @@ exports.search = function(query) {
     };
 
     return msResource.search(params)
-    .then(parseAcademicResult)
-    .then(utils.extractValuesFromMap);
+    .then(getAuthorIdToAuthorMap)
+    .then(composeRankFormat);
 };
-
-//Parses the result from the search into a kv-map mapping the ID of an author
-//to information about him and any articles he contributed to returned by the
-//search.
-function parseAcademicResult(searchResult){
+/**
+* DESCRIPTION: Takes the result from a msAcademic search and returns a map of
+* authorId->author, where each author object is
+* {
+*   'name' : <authorName>,
+*   'affiliation' : <authorAffiliation>,
+*   'id' : <authorId>,
+*   'articles' : <List of articles in the result of the search>
+* }
+*
+* @param searchResult The result of a search in microsoft academic. If a parameter
+*        in the author object isn't available, it will be excluded from the object.
+* @return: A map of author IDs to authors
+* {
+*   <authorId> : <author>,
+*   <authorId> : <author>
+* }
+* where the authorId is unique integers and the <author> objects follows the
+* pattern explained in the DESCRIPTION.
+*/
+function getAuthorIdToAuthorMap(searchResult){
     var authors = {};
     return Promise.map(searchResult['entities'], function(entity) {
       return Promise.map(entity['AA'], function(author) {
@@ -51,15 +67,23 @@ function parseAcademicResult(searchResult){
         authors[author['AuId']]['articles'].push({
           'title' : entity['Ti'],
           'citationCount' : entity['CC'],
-          'journalName' : (entity['J']) ? entity['J']['JN'] : null
+          'journalName' : (entity['J']) ? entity['J']['JN'] : null,
+          'DOI' : (entity['E']) ? JSON.parse(entity['E'])['DOI'] : null
         });
       });
     })
     .return(authors);
 }
 
-//Formats the author->[article] map into the format needed for the ranker
-function prepareForFirstRanking(entityList) {
+/**
+* DESCRIPTION: Formats an authorId->author map to enable ranking of it.
+*
+* @param entityList: An authorId->author map containing fields suitable for
+*        ranking the authors.
+* @return: an object containing the map along with fields specifying how the
+*         authors should be ranked.
+*/
+function composeRankFormat(entityList) {
     var rank = {
         entities: entityList,
         rankingFields: [
@@ -74,7 +98,6 @@ function prepareForFirstRanking(entityList) {
             {   fields: ['affiliation'],
                 weight: 1
             }
-
         ]
     };
 
