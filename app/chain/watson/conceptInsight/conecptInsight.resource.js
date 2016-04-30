@@ -5,7 +5,7 @@ var config  = require('config');
 var promise = require('bluebird');
 var request = require('request-promise');
 var utils   = require('../../../utility/utils');
-var errorHandler    = require('../../handler/error.handler');
+var errorHandler    = require('../../../handler/error.handler.js');
 var responseHandler = require('../../../handler/response.handler');
 
 var watson = require('watson-developer-cloud');
@@ -15,20 +15,32 @@ var conceptInsight = watson.concept_insights({
 	version: 'v2'
 });
 
-//functions
-
 // return: error information or account information
-exports.testAccount = function(){
+exports.testAccount = function(params){
 	conceptInsight.accounts.getAccountsInfo({}, function(err,res){
 		if(err){
 			console.log(err);
-			return ('error occured: ' + err);
 
 		} else {
 			var accInfo = JSON.stringify(res,null,2); 
 			console.log(accInfo);
-			return accInfo;
 			
 		}
 	});
+	
+	var options = {};
+	return utils.setUrlParamsForOptions(params, options)
+		.then(request)
+		.then(responseHandler.parseGet)
+		.catch(errorHandler.throwResourceError);
+}
+
+exports.test = function(params){
+	console.log('test!');
+
+	var options = {};
+	return utils.setUrlParamsForOptions(params, options)
+		.then(request)
+		.then(responseHandler.parseGet)
+		.catch(errorHandler.throwResourceError);
 }
