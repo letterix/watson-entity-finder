@@ -20,7 +20,7 @@ exports.search = function(query) {
         'model' : 'latest',
         'count' : noOfArticlesReturned, //getting 500 articles as default
         'attributes' : searchReturnParameters,//Getting titles for now
-        'expr': "AND(Y>=2009,W='"+query+"')"
+        'expr': "AND(Y>2009,W='"+query+"')"
     };
 
     return msResource.search(params)
