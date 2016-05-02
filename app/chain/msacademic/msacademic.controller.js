@@ -7,6 +7,7 @@
 var Promise = require('bluebird');
 var config = require('config');
 var msResource = require('./msacademic.resource');
+var pubmedController = require('../pubmed/pubmed.controller')
 var errorHandler = require('../../handler/error.handler');
 var utils = require('../../utility/utils');
 var noOfArticlesReturned = config.RESOURCE_MSACADEMIC_NO_OF_ARTICLES_RETURNED;
@@ -22,7 +23,6 @@ exports.search = function(query) {
         'attributes' : searchReturnParameters,//Getting titles for now
         'expr': "AND(Y>2009,W='"+query+"')"
     };
-
     return msResource.search(params)
     .then(getAuthorIdToAuthorMap);
     //.then(composeRankFormat);
@@ -48,32 +48,42 @@ exports.search = function(query) {
 * pattern explained in the DESCRIPTION.
 */
 function getAuthorIdToAuthorMap(searchResult){
-    var authors = {};
-    return Promise.map(searchResult['entities'], function(entity) {
-      return Promise.map(entity['AA'], function(author) {
-        if (!authors[author['AuId']]) {
-          authors[author['AuId']] = {
-            'name' : author['AuN'],
-            'affiliation' : author['AfN'],
-            'id' : author['AuId'],
-            'articles' : []
-          };
-        }
-
-        if (!authors[author['AuId']]['affiliation']) {
-          authors[author['AuId']]['affiliation'] = author['AfN'];
-        }
-
-        authors[author['AuId']]['articles'].push({
+    return Promise.reduce(searchResult['entities'], function(authors, entity) {
+      console.log("Authors is: " + authors);
+      pubmedController.getPubmedIDs(entity['Ti'])
+      .then(function(param){
+        return (param.length==1) ? param[0] : 0;
+      })
+      .then(function(pubmedID){
+        var article = {
           'title' : entity['Ti'],
           'subjectArea' : (entity['F']) ? entity['F'] : null,
           'citationCount' : entity['CC'],
           'journalName' : (entity['J']) ? entity['J']['JN'] : null,
-          'DOI' : (JSON.parse(entity['E'])['DOI']) ? JSON.parse(entity['E'])['DOI'] : null
+          'DOI' : (JSON.parse(entity['E'])['DOI']) ? JSON.parse(entity['E'])['DOI'] : null,
+          'pubmedId' : pubmedID
+        };
+
+        return Promise.map(entity['AA'], function(author) {
+          console.log("Inner map and  Authors is: " + authors);
+          console.log("Author is: " + entity['AA']);
+          if (!authors[author['AuId']]) {
+            authors[author['AuId']] = {
+              'name' : author['AuN'],
+              'affiliation' : author['AfN'],
+              'id' : author['AuId'],
+              'articles' : []
+            };
+          }
+
+          if (!authors[author['AuId']]['affiliation']) {
+            authors[author['AuId']]['affiliation'] = author['AfN'];
+          }
+
+          authors[author['AuId']]['articles'].push(article);
         });
-      });
-    })
-    .return(authors);
+      })
+    }, {});
 }
 
 /**

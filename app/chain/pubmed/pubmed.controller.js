@@ -21,16 +21,31 @@ exports.searchPMID = function(query) {
         'retmode': 'json',
         'httpAccept': 'application/json',
         'term': query
+
     };
 
     return pubmedResource.searchPMID(params);
 };
-
-exports.retrieveAbstract = function(pmid) {
+exports.getPubmedIDs = function(query) {
     var params = {
         'db': 'pubmed',
-        'retmode': 'text',
-        'rettype': 'abstract',
+        'field': 'title',
+        'retmax': '100',
+        'retmode': 'json',
+        'httpAccept': 'application/json',
+        'term': query
+    };
+
+    return pubmedResource.searchPMID(params)
+    .then(function (param){
+      console.log("PubmedIDs for an article: " + param['esearchresult']['idlist']);
+      return param['esearchresult']['idlist'];
+    });
+};
+
+function extractNumberOfResults(pubmedSearchResult){
+
+}
 
 /* Function for searching for a specific doi
 The doi need to be parsed before search, replacing '/' with %2F
