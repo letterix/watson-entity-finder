@@ -20,12 +20,12 @@ exports.search = function(query) {
         'model' : 'latest',
         'count' : noOfArticlesReturned, //getting 500 articles as default
         'attributes' : searchReturnParameters,//Getting titles for now
-        'expr': "AND(Y>2010,W='"+query+"')"
+        'expr': "AND(Y>=2009,W='"+query+"')"
     };
 
     return msResource.search(params)
-    .then(getAuthorIdToAuthorMap)
-    .then(composeRankFormat);
+    .then(getAuthorIdToAuthorMap);
+    //.then(composeRankFormat);
 };
 /**
 * DESCRIPTION: Takes the result from a msAcademic search and returns a map of
@@ -66,9 +66,10 @@ function getAuthorIdToAuthorMap(searchResult){
 
         authors[author['AuId']]['articles'].push({
           'title' : entity['Ti'],
+          'area' : (entity['F']) ? entity['F'] : null,
           'citationCount' : entity['CC'],
           'journalName' : (entity['J']) ? entity['J']['JN'] : null,
-          'DOI' : (entity['E']) ? JSON.parse(entity['E'])['DOI'] : null
+          'DOI' : (JSON.parse(entity['E'])['DOI']) ? JSON.parse(entity['E'])['DOI'] : null
         });
       });
     })
