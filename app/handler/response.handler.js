@@ -135,6 +135,13 @@ function parseTextBody(response) {
     });
 }
 
+function parseTextBody(response) {
+    return new Promise(function(resolve) {
+        var body = response.body || "";
+        return resolve(body);
+    });
+}
+
 // SENDING
 // ============================================================================
 exports.sendErrorResponse = function(response) {
