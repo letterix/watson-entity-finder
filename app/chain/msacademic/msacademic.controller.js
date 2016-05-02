@@ -66,7 +66,7 @@ function getAuthorIdToAuthorMap(searchResult){
 
         authors[author['AuId']]['articles'].push({
           'title' : entity['Ti'],
-          'area' : (entity['F']) ? entity['F'] : null,
+          'subjectArea' : (entity['F']) ? entity['F'] : null,
           'citationCount' : entity['CC'],
           'journalName' : (entity['J']) ? entity['J']['JN'] : null,
           'DOI' : (JSON.parse(entity['E'])['DOI']) ? JSON.parse(entity['E'])['DOI'] : null
