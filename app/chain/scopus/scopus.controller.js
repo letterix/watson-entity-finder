@@ -12,45 +12,48 @@ var errorHandler = require('../../handler/error.handler.js');
 var config = require('config');
 var utils = require('../../utility/utils');
 
+
+/**
+ * Used by scopus to determine what fields to return given a query
+ */
+var views = {
+    ENHANCED: "ENHANCED",
+    METRICS: "METRICS",
+    COMPLETE: "COMPLETE"
+};
+
 // DOES EXPORT
 // ====================================================
-exports.search = function(query, start, count) {
-    var params = {
-        'apikey': config.RESOURCE_SCOPUS_API_KEY
-        ,'httpAccept': 'application/json'
-        ,'query': query
-        ,'count': count
-        ,'date': '2004-2016'
-        ,'subj': 'MEDI'
-        ,'start': start
-        ,'view': 'COMPLETE'
-        ,'field': 'affiliation,dc:creator,dc:title,prism:issn,prism:eIssn,prism:isbn,dc:creator,affiliation,author,prism:publicationName,citedby-count'
-    };
 
-    // SEARCH TIPS
-    /*
-    ALL("heart attack") returns documents with "heart attack" in any of the fields listed.
-    ABS(dopamine)returns documents where "dopamine" is in the document abstract.
-    The search TITLE-ABS-KEY(prion disease) returns documents where the terms appear in the title, keywords, or abstract.
 
-    AFFIL(nure?berg) finds Nuremberg, Nurenberg
-    behav* finds behave, behavior, behaviour, behavioural, behaviourism, etc.
-    *tocopherol finds α-tocopherol, γ-tocopherol , δ-tocopherol, tocopherol, tocopherols, etc.
-    */
+// SCOPUS SEARCH
+// ====================================================
 
-    return scopusResource.search(params);
-};
+/**
+ * DESCRIPTION: Retrieves all articles for the search query "search".
+ * Groups the articles by each author
+ * Lastly prepares the result for ranking
+ *
+ * @param search (String): the search query to pass to scopus search
+ * @param numRes (Int): the number of top results to return
+ */
+exports.search = function(search, numRes) {
+    return limitedSearch(search, 0, 1)
+        .then(loopSearcher(search))
+        .then(groupByAuthor)
+        .then(getFullAuthorObjects)
+        .then(prepareForRanking)
+        .then(rankController.rank); // Send to rank
+}
 
-exports.authorSearch = function(query) {
-    var params = {
-        'apikey': config.RESOURCE_SCOPUS_API_KEY,
-        'httpAccept': 'application/json',
-        'query': query
-    };
+// AUTHOR SEARCH/RETRIEVAL
+// ====================================================
 
-    return scopusResource.authorSearch(params);
-};
-
+/**
+ * DESCRIPTION: Retrieves an author given his/her id.
+ *
+ * @param id (String): the id of the author
+ */
 exports.retrieveAuthor = function(id) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
@@ -60,30 +63,28 @@ exports.retrieveAuthor = function(id) {
     return scopusResource.retrieveAuthor(id, params);
 };
 
-exports.retrieveAuthorBatch = function(authorBatchString) {
+/**
+ * DESCRIPTION: Retrieves authors given a csv string of author id's.
+ *
+ * @param authorsIdsCsv (String): the csv author id's
+ * @return [] an Array of author objects
+ */
+exports.retrieveAuthorByCsv = function(authorsIdsCsv) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
         'httpAccept': 'application/json',
-        'author_id': authorBatchString,
-        'view': 'ENHANCED'
+        'author_id': authorsIdsCsv,
+        'view': views.ENHANCED,
+        'field': 'document-count,citedby-count,citations-count,affiliation-current,h-index,coauthor-count,author-profile,dc:identifier'
     };
 
-    // authorBatchString ex: '102615177, 102615178'
-    return scopusResource.retrieveAuthorBatch(params);
+    // authorsIdsCsv ex: '102615177, 102615178'
+    return scopusResource.retrieveAuthorByCsv(params)
+        .then(utils.extractFieldValue(['author-retrieval-response-list','author-retrieval-response']));;
 };
 
-exports.retrieveAuthorHIndexBatch = function(authorBatchString) {
-    var params = {
-        'apikey': config.RESOURCE_SCOPUS_API_KEY,
-        'httpAccept': 'application/json',
-        'author_id': authorBatchString,
-        'view': 'METRICS',
-        'field': 'h-index,dc:identifier'
-    };
-
-    // authorBatchString ex: '102615177, 102615178'
-    return scopusResource.retrieveAuthorBatch(params);
-};
+// ARTICLE RELATED (DEPRECATED)
+// ====================================================
 
 exports.retrieveAbstract = function(title) {
     var params = {
@@ -105,28 +106,6 @@ exports.retrieveArticle = function(eid) {
     return scopusResource.retrieveArticle(eid, params);
 };
 
-exports.retrieveIssn = function(issn) {
-    var params = {
-        'apikey': config.RESOURCE_SCOPUS_API_KEY,
-        'httpAccept': 'application/json'
-    };
-
-    // issn ex: '102615177'
-    return scopusResource.retrieveIssn(issn, params);
-};
-
-exports.retrieveIssnBatch = function(issnBatchString) {
-    var params = {
-        'apikey': config.RESOURCE_SCOPUS_API_KEY,
-        'httpAccept': 'application/json',
-        'issn': issnBatchString,
-        'field': 'SJR,prism:issn,prism:eIssn'
-    };
-
-    // issnBatchString ex: '102615177, 102615178'
-    return scopusResource.retrieveIssnBatch(params);
-};
-
 exports.retrieveLink = function(link) {
     var params = {
         'apikey': config.RESOURCE_SCOPUS_API_KEY,
@@ -137,366 +116,231 @@ exports.retrieveLink = function(link) {
     return scopusResource.retrieveLink(link, params);
 };
 
-// Exports with post work
+// DOES NOT EXPORT
 // ====================================================
 
-exports.searchArticles = function(search, numRes) {
-    return exports.search(search, 0, 25)
-        .then(utils.extractFieldValue(['search-results','entry']))
-        .map(forceIssn)
-        .then(batchFetchIssn)
-        .then(groupByAuthor)
-        .then(getEntityList)
-        .map(removeDoubleArticles)
-        .then(prepareForFirstRanking);
+/**
+* DESCRIPTION: Performs a single scopus search and returns the results in the
+* span of start to (start+count).
+*
+* SEARCH TIPS:
+
+* ALL("heart attack") returns documents with "heart attack" in any of the fields listed.
+* ABS(dopamine)returns documents where "dopamine" is in the document abstract.
+* The search TITLE-ABS-KEY(prion disease) returns documents where the terms appear in the title, keywords, or abstract.
+
+* AFFIL(nure?berg) finds Nuremberg, Nurenberg
+* behav* finds behave, behavior, behaviour, behavioural, behaviourism, etc.
+* *tocopherol finds α-tocopherol, γ-tocopherol , δ-tocopherol, tocopherol, tocopherols, etc.
+*
+* @param String query: the query to pass onto scopus
+* @param int start: the index from which to use as head of the results
+* @param int count: the number of results to return
+* @return: the result from the search (Object)
+*/
+function limitedSearch(query, start, count) {
+    var params = {
+        'apikey': config.RESOURCE_SCOPUS_API_KEY
+        ,'httpAccept': 'application/json'
+        ,'query': query
+        ,'count': count
+        ,'date': '2006-2016'
+        ,'subj': 'MEDI'
+        ,'start': start
+        ,'view': views.COMPLETE
+        ,'field': 'affiliation,dc:creator,dc:title,prism:issn,prism:eIssn,prism:isbn,dc:creator,affiliation,author,prism:publicationName,citedby-count,prism:doi'
+    };
+
+    return scopusResource.search(params);
 };
 
 /**
- * Retrieves all articles for the search query "search".
- * Gets the issn for all articles
- * Groups the articles by each author
- * Lastly prepares the result for ranking
- */
-exports.loopSearch = function(search, numRes) {
-    return exports.search(search, 0, 1)
-        .then(loopSearcher(search))
-        .then(putTogetherArticles)
-        .then(groupByAuthor)
-        .then(getEntityList)
-        .map(removeDoubleArticles)
-        .then(prepareForFirstRanking)
-        .then(rankController.rank) // Send to rank
-        .then(getHIndexBatches)
-        .then(prepareForSecondRanking)
-        .then(rankController.rank) // Send to rank
-        .then(getAuthors(numRes));
-}
-
-// HELPER FUNCTIONS FOR LOOP SEARCH
-// ====================================================
-
-function tempAfterRank(res) {
-    return new Promise(function(resolve) {
-        resolve(res['entities']);
-    });
-}
-
-/**
- * Takes the search query "search" and a search result object "res" as parameters.
- * Synchronously retrieves all search results with 25 articles each for the search query "search".
+ * DESCRIPTION: Takes a scopus query and a search result object as parameters, reads the number
+ * of available results from the "res" object and synchronously retrieves all of the results.
  * When all results are retrieve it then adds them to a list and returns the list.
+ *
+ * @param String query: the query to pass onto scopus
+ * @param res: the initial search response from scopus
+ * @return: an array containing all of the search results
  */
-function loopSearcher(search) {
+function loopSearcher(query) {
     return function(res) {
         return new Promise(function(resolve) {
-            var count = Math.ceil(res['search-results']['opensearch:totalResults']/25);
+
+            var count = Math.ceil(res['search-results']['opensearch:totalResults']/100);
             console.log("Available results: " + res['search-results']['opensearch:totalResults']);
+
             var resultList = [];
             for (var i = 0; i < count; ++i) {
-                var start = i*25;
-                resultList.push(searchAndGetIssn(search, start));
+                var start = i*100;
+                resultList.push(limitedSearch(query, start, 100)
+                    .then(utils.extractFieldValue(['search-results','entry'])));
             };
-            Promise.all(resultList).then(function() {
-                console.log("all the searchers are done");
-                resolve(resultList);
-            });
+
+            return Promise.all(resultList)
+                .then(utils.flatten)
+                .filter(utils.undefinedFieldFilter('author'))
+                .map(utils.renameFieldForObject('prism:doi', 'doi'))
+                .map(utils.renameFieldForObject('dc:title', 'title'))
+                .map(utils.renameFieldForObject('prism:publicationName', 'journalName'))
+                .then(resolve);
         });
-    };
-}
-
-/**
- * Takes a search query "search" and a integer start as parameters.
- * Sends out a search request with the search query "search" to rerieve 25 articles form "start".
- * When the result is retrieve it then gets the issn for all articles.
- */
-function searchAndGetIssn(search, start) {
-    return exports.search(search, start, 25)
-        .then(utils.extractFieldValue(['search-results','entry']))
-        .map(forceIssn)
-        .then(batchFetchIssn);
-}
-
-/**
- * Takes a search query "search" and a integer start as parameters.
- * Sends out a search request with the search query "search" to rerieve 25 articles form "start".
- * When the result is retrieve it then gets the issn for all articles.
- */
-function putTogetherArticles(results) {
-    var articleList = [];
-    return Promise.map(results, function(articles) {
-        articles.forEach(function(article) {
-            if (!!article['author']) {
-                articleList.push(article);
-            }
-        });
-    })
-    .return(articleList);
-}
-
-// HELPER FUNCTIONS
-// ====================================================
-
-function retrieveAbstract(article) {
-    return exports.retrieveLink(article['link'][0]['@href']);
-}
-
-// BATCH FETCH ISSN
-// ====================================================
-
-function batchFetchIssn(articles) {
-    return extractIssns(articles)
-        .then(exports.retrieveIssnBatch)
-        .then(utils.extractFieldValue(['serial-metadata-response','entry']))
-        .map(forceIssn)
-        .then(matchIssns(articles))
-        .filter(utils.undefinedFieldFilter('issn'))
-        .filter(filterUndefinedIssn);
-}
-
-function extractIssns(articles) {
-    var issnBatchString = '';
-    return Promise.map(articles, function(article) {
-        issnBatchString += article['issn'] + ',';
-    })
-    .then(function(res) {
-        return issnBatchString;
-    });
-}
-
-function forceIssn(entry) {
-    return new Promise(function(resolve) {
-        var issn = entry['prism:issn'];
-        if (issn === undefined) {
-            issn = entry['prism:eIssn'];
-        };
-        if (issn === undefined) {
-            issn = entry['prism:isbn'];
-        };
-        if (typeof issn === 'string') {
-            issn = issn.replace('-','');
-        }
-
-        entry['issn'] = issn;
-
-        return resolve(entry);
-    });
-}
-
-function matchIssns(articles) {
-    return function(issnBatch) {
-        return Promise.all([utils.sortByField(articles, 'issn'), utils.sortByField(issnBatch, 'issn')])
-            .then(function() {
-                return new Promise(function(resolve) {
-                    var innerIndex = 0;
-                    for (var i = 0; i < issnBatch.length; i++) {
-                        for (var j = innerIndex; j < articles.length; j++) {
-                            if (issnBatch[i]['issn'] === articles[j]['issn']) {
-                                articles[i]['issn'] = issnBatch[j];
-                                innerIndex = j+1;
-                                break;
-                            };
-                        };
-                    };
-
-                    return resolve(articles);
-                });
-            });
     };
 }
 
 // GROUP BY AUTHORS
 // ====================================================
 
+/**
+* DESCRIPTION: Takes a list of articles and groups them by their authors.
+* Further filters double articles from the grouped authors.
+*
+* @param articles[]: An array containing the articles
+* @return: An array containing authors with the field articles containing
+* the articles for said author.
+*/
 function groupByAuthor(articles) {
-    var k = "apa";
-    var authorMap = {};
-    return Promise.map(articles, function(article) {
+    return Promise.reduce(articles, function(map, article) {
         article['author'].forEach(function(author) {
-            if (!authorMap[author['authid']]) {
-                authorMap[author['authid']] = {
+            if (!map[author['authid']]) {
+                map[author['authid']] = {
                     articles: [],
                     id: author['authid']
                 };
             };
-            if(k=="apa"){
-              console.log(article);
-              k = "nope";
-            }
+
             var newArticle = article;
             delete newArticle['author'];
-            authorMap[author['authid']]['articles'].push(newArticle);
+            map[author['authid']]['articles'].push(newArticle);
         });
-    })
-    .return(authorMap);
+        return map;
+    }, {})
+    .then(utils.extractValuesFromMap)
+    .map(removeDoubleArticles);
 }
 
-// GET ENTITY LIST AND PREPARE FOR RANKING
-// ====================================================
-
-function getEntityList(authorMap) {
-    return Promise.map(Object.keys(authorMap), function(id) {
-        return authorMap[id];
-    });
-}
-
+/**
+* DESCRIPTION: Takes an author object and removes any double occuring articles.
+*
+* @param author{}: An author object containing a list of articles
+* @return: An author object containing a clean set of articles
+*/
 function removeDoubleArticles(author) {
-    var articleMap = {};
-    return Promise.each(author.articles, function(article) {
-        articleMap[article['issn']['issn']] = article;
-    })
-    .then(function() {
-        return Promise.map(Object.keys(articleMap), function(key) {
-            return articleMap[key];
-        });
-    })
-    .then(function(articles) {
-        author['articles'] = articles;
-        return author;
-    })
+    return utils.getSetOfObjectsByField('title')(author.articles)
+        .then(utils.setFieldForObject('articles', author));
 }
 
-function prepareForFirstRanking(entityList) {
-    var rank = {
-        entities: entityList,
-        rankingFields: [
-            {   fields: ['articles','issn','SJRList', 'SJR', '$'],
-                weight: 1
-            },
-            {   fields: ['articles','citedby-count'],
-                weight: 1
-            }
-        ],
-        weightFields: [
-            {   fields: ['articles', 'prism:publicationName'],
-                weight: 1
-            }
-        ]
-    };
-
-    return new Promise(function(resolve) {
-        return resolve(rank);
-    });
-}
-
-// GET H-INDEX AND PREPARE FOR SECOND RANKING
+// EXTEND THE
 // ====================================================
 
-function getHIndexBatches(authors) {
+/**
+* DESCRIPTION: Takes a list of author objects with atleast and id field
+* and returns a list of more detailed author objects; matching those id's.
+*
+* @param authors[]: An array of authors caontaining atleast an id field.
+* @return: An array of more detailed author objects, containing atleast all
+* the information as the input.
+*/
+function getFullAuthorObjects(authors) {
     return new Promise(function(resolve) {
         var resultList = [];
-        var count = (authors.length/100);
-        if (count > 5) {
-            count = 5;
-        }
+        var count = Math.ceil(authors.length / 25);
         for (var i = 0; i < count; ++i) {
-            var theAuthors = authors.splice(0, 100);
-            resultList.push(extractAuthors(theAuthors)
-                            .then(exports.retrieveAuthorHIndexBatch)
-                            .then(matchAuthor(theAuthors)));
+            var authorsCut = authors.splice(0, 25);
+            resultList.push(
+                utils.getListCsv('id')(authorsCut)
+                    .then(exports.retrieveAuthorByCsv)
+                    .map(utils.moveNestedObjFieldsToParent('coredata'))
+                    .map(utils.moveNestedObjFieldsToParent('author-profile'))
+                    .map(setNameForAuthor)
+                    .map(pruneAuthorFields)
+                    .then(matchAuthorObjects(authorsCut))
+            );
         };
-        Promise.all(resultList).then(function() {
-            console.log("all the h-indexes retrieved and matched");
-            return (resultList);
-        })
-        .then(putTogetherBatches)
-        .then(function(res) {
-            resolve(res);
-        });
+        return Promise.all(resultList)
+            .tap(utils.printPromiseProgress("all the h-indexes retrieved and matched"))
+            .then(utils.flatten)
+            .then(resolve);
     });
 }
 
-function extractAuthors(authors) {
-    var authorBatchString = '';
-    return Promise.map(authors, function(author) {
-        authorBatchString += author['id'] + ',';
-    })
-    .then(function(res) {
-        return authorBatchString;
-    });
-}
 
-function matchAuthor(authors) {
-    return function(hindexes) {
-        var hindexes = hindexes['author-retrieval-response-list']['author-retrieval-response'];
-        return Promise.all([utils.sortByField(authors, 'id'), sortByAuthorID(hindexes)])
+/**
+ * DESCRIPTION: Sorts and matches two arrays of author objects returned from scopus.
+ * Upon being matched, all the fields from the first (old) object is passed onto the
+ * second (new) object and the function updates the start index for the next iteration.
+ *
+ * @param oldAuthors[]: an array of authors containing atleast an id field
+ * @param newAuthors[]: an array of authors containing atleast an dc:identifier field
+ * @return: an array containing all of the merged author objects
+ */
+function matchAuthorObjects(oldAuthors) {
+    return function(newAuthors) {
+        oldAuthors = utils.sortByField('id')(oldAuthors);
+        newAuthors = utils.sortByField('dc:identifier')(newAuthors);
+        return Promise.all([oldAuthors, newAuthors])
             .then(function() {
                 return new Promise(function(resolve) {
+                    oldAuthors = oldAuthors.value();
+                    newAuthors = newAuthors.value();
                     var innerIndex = 0;
-                    for (var i = 0; i < hindexes.length; i++) {
-                        for (var j = innerIndex; j < authors.length; j++) {
-                            if (hindexes[i]['coredata']['dc:identifier'] === 'AUTHOR_ID:'+authors[j]['id']) {
-                                if (authors[i]['h-index'] === undefined) {
-                                    authors[i]['h-index'] = hindexes[j]['h-index'];
-                                }
-                                else {
-                                    authors[i]['author'] = hindexes[j];
-                                }
+                    for (var i = 0; i < newAuthors.length; i++) {
+                        for (var j = innerIndex; j < oldAuthors.length; j++) {
+                            if (newAuthors[i]['dc:identifier'] === 'AUTHOR_ID:'+oldAuthors[j]['id']) {
+                                newAuthors[i] = utils.moveFieldsFromObj(oldAuthors[i], newAuthors[j]);
                                 innerIndex = j+1;
                                 break;
                             };
                         };
                     };
 
-                    return resolve(authors);
+                    return resolve(newAuthors);
                 });
             });
     }
 }
 
-function sortByAuthorID(hindexes) {
-    return new Promise(function(resolve) {
-        hindexes.sort(function(a, b) {
-            if (a['coredata']['dc:identifier'] < b['coredata']['dc:identifier']) {
-                return -1;
-            }
-            return 1;
-        });
+// HELPER FUNCTIONS
+// ====================================================
 
-        return resolve(hindexes);
-    });
+function setNameForAuthor(author) {
+    var surName = author['preferred-name']['surname'];
+    var givenName = author['preferred-name']['given-name'];
+    author['name'] = givenName + ' ' + surName;
+    return author;
 }
 
-function putTogetherBatches(batches) {
-    var resultList = [];
-    return Promise.map(batches, function(batch) {
-        batch.forEach(function(article) {
-            resultList.push(article);
-        });
-    })
-    .return(resultList);
-}
-
-function prepareForSecondRanking(entityList) {
+function prepareForRanking(entityList) {
     var rank = {
         entities: entityList,
         rankingFields: [
+            {   fields: ['articles','citedby-count'],
+                multiplier: 1
+            },
             {   fields: ['h-index'],
-                weight: 1
+                multiplier: 1
             }
         ],
-        weightFields: []
+        weightFields: [
+            {   fields: ['articles', 'journalName'],
+                multiplier: 1
+            }
+        ]
     };
 
-    return new Promise(function(resolve) {
-        return resolve(rank);
-    });
+    return rank
 }
 
-// GET AUTHORS
-// ====================================================
-
-function getAuthors(numRes) {
-    return function(authors) {
-        var topAuthors = authors.splice(0, numRes);
-        return extractAuthors(topAuthors)
-            .then(exports.retrieveAuthorBatch)
-            .then(matchAuthor(topAuthors));
-    }
-}
-
-// FILTER
-// ====================================================
-
-function filterUndefinedIssn(article) {
-    return !!article['issn']['issn'];
+function pruneAuthorFields(author) {
+    delete author['@_fa'];
+    delete author['@status'];
+    delete author['status'];
+    delete author['date-created'];
+    delete author['preferred-name'];
+    delete author['name-variant'];
+    delete author['classificationgroup'];
+    delete author['publication-range'];
+    delete author['journal-history'];
+    delete author['affiliation-history'];
+    return author;
 }

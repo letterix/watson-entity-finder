@@ -38,27 +38,6 @@ module.exports = function(routes) {
             .catch(responseHandler.sendErrorResponse(response));
     });
 
-    routes.get('/retrieveIssn/:issn', function(request, response) {
-        scopusController.retrieveIssn(request.params.issn)
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
-
-// Routes with post work
-// ====================================================
-
-    routes.get('/searchArticles/:search', function(request, response) {
-        scopusController.searchArticles(request.params.search, request.query.numRes)
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
-/*
-    routes.get('/getTradeoff/:search', function(request, response) {
-        scopusController.getTradeoff(request.params.search)
-            .then(responseHandler.sendJsonResponse(response))
-            .catch(responseHandler.sendErrorResponse(response));
-    });
-*/
     routes.get('/loopSearch/:search', function(request, response) {
         scopusController.loopSearch(request.params.search, 20)
             .then(responseHandler.sendJsonResponse(response))

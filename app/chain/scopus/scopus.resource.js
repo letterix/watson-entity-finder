@@ -16,8 +16,6 @@ var scopusSearchAuthorUrl = config.RESOURCE_SCOPUS_SEARCH_AUTHOR_URL;
 var scopusRetrieveAuthorUrl = config.RESOURCE_SCOPUS_RETRIEVE_AUTHOR_BATCH_URL + '/author_id/';
 var scopusRetrieveAuthorBatchUrl = config.RESOURCE_SCOPUS_RETRIEVE_AUTHOR_BATCH_URL;
 var scopusRetrieveAbstractUrl = config.RESOURCE_SCOPUS_RETRIEVE_ABSTRACT_URL;
-var scopusRetrieveArticleUrl = config.RESOURCE_SCOPUS_RETRIEVE_ARTICLE_URL;
-var scopusRetrieveIssnUrl = config.RESOURCE_SCOPUS_RETRIEVE_ISSN_BATCH_URL + '/issn/';
 var scopusRetrieveIssnBatchUrl = config.RESOURCE_SCOPUS_RETRIEVE_ISSN_BATCH_URL;
 var apiKey = config.RESOURCE_SCOPUS_API_KEY;
 
@@ -32,7 +30,7 @@ exports.search = function(params) {
         gzip: true
     };
     console.time('scopusSearch');
-            
+
     return utils.setUrlParamsForOptions(params, options)
         .then(request)
         .then(function(res) {
@@ -73,7 +71,7 @@ exports.retrieveAuthor = function(id, params) {
         .catch(errorHandler.throwResourceError);
 };
 
-exports.retrieveAuthorBatch = function(params) {
+exports.retrieveAuthorByCsv = function(params) {
     var options = {
         resolveWithFullResponse: true,
         uri: scopusRetrieveAuthorBatchUrl,
@@ -82,6 +80,7 @@ exports.retrieveAuthorBatch = function(params) {
         json: true,
         gzip: true
     };
+
     console.time('retrieveAuthorBatch');
 
     return utils.setUrlParamsForOptions(params, options)
@@ -121,36 +120,6 @@ exports.retrieveArticle = function(eid, params) {
         .then(request)
         .then(responseHandler.parseGet)
         .catch(errorHandler.throwResourceError);
-};
-
-exports.retrieveIssn = function(issn, params) {
-    var options = {
-        resolveWithFullResponse: true,
-        uri: scopusRetrieveIssnUrl + issn,
-        method: 'GET',
-        agent: false,
-        json: true,
-        gzip: true
-    };
-
-    return utils.setUrlParamsForOptions(params, options)
-        .then(request)
-        .then(responseHandler.parseGet);
-};
-
-exports.retrieveIssnBatch = function(params) {
-    var options = {
-        resolveWithFullResponse: true,
-        uri: scopusRetrieveIssnBatchUrl,
-        method: 'GET',
-        agent: false,
-        json: true,
-        gzip: true
-    };
-
-    return utils.setUrlParamsForOptions(params, options)
-        .then(request)
-        .then(responseHandler.parseGet);
 };
 
 exports.retrieveLink = function(link, params) {
