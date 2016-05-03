@@ -29,7 +29,9 @@ exports.search = function(search) {
     return Promise.all([scopusResults, msacademicResults])
         .then(utils.flatten)
         .then(groupByAuthor)
-        .then(utils.sortByField('score'))
+        .map(utils.setValueForField('score', 0))
+        .then(prepareForRanking)
+        .then(rankController.rank)
         .then(utils.retrieveFirstNumValues(20));
 };
 
@@ -137,5 +139,33 @@ function mergeArticles(first, second) {
 
         return articles;
     }, []);
+}
+
+// HELPER FUNCTIONS
+// ====================================================
+
+function prepareForRanking(entityList) {
+    var rank = {
+        entities: entityList,
+        rankingFields: [
+            {   fields: ['articles','citedby-count'],
+                multiplier: 1
+            },
+            {   fields: ['articles','pubmed-id'],
+                multiplier: 1,
+                weight: 20
+            },
+            {   fields: ['h-index'],
+                multiplier: 1
+            }
+        ],
+        weightFields: [
+            {   fields: ['articles', 'journalName'],
+                multiplier: 1
+            }
+        ]
+    };
+
+    return rank
 }
 

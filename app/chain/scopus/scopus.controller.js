@@ -148,7 +148,7 @@ function limitedSearch(query, start, count) {
         ,'subj': 'MEDI'
         ,'start': start
         ,'view': views.COMPLETE
-        ,'field': 'affiliation,dc:creator,dc:title,prism:issn,prism:eIssn,prism:isbn,dc:creator,affiliation,author,prism:publicationName,citedby-count,prism:doi'
+        ,'field': 'affiliation,dc:creator,dc:title,prism:issn,prism:eIssn,prism:isbn,dc:creator,affiliation,author,prism:publicationName,citedby-count,prism:doi,pubmed-id'
     };
 
     return scopusResource.search(params);

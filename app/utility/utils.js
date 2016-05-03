@@ -69,7 +69,22 @@ exports.setUrlParamsForOptions = function(params, options) {
  * @returns: an array of the values contained in the map object
  */
 exports.extractValuesFromMap = function(map) {
-  return Promise.map(Object.keys(map), function(key) {return map[key]});
+    return Promise.map(Object.keys(map), function(key) {return map[key]});
+};
+
+/**
+ * DESCRIPTION: A simple function that sets a specific value for a field of an object
+ *
+ * @param value: the value to assign to the indexed field
+ * @param String field: the field to index the object with and change the value for
+ * @param Object object: the object containing the field
+ * @returns: the object after the mutation of the field
+ */
+exports.setValueForField = function(field, value) {
+    return function(object) {
+        object[field] = value;
+        return object;
+    }
 };
 
 /**
