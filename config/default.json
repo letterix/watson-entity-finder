@@ -29,6 +29,7 @@
 
     // concept insight service 
     // credentials found from bluemix service under tab 'show credentials'
-    "RESOURCE_CONCEPTINSIGHT_USERNAME" : "bc37dcee-8825-4cfb-9e35-c5b75325fc7f",
-    "RESOURCE_CONCEPTINSIGHT_PASSWORD" : "npZ67eZCYSpu" 
+    "RESOURCE_CONCEPTINSIGHT_USERNAME" : "cc0c965e-1f43-4f44-9148-3bea409b31be",
+    "RESOURCE_CONCEPTINSIGHT_PASSWORD" : "3CLXVw2hKPdm",
+    "RESOURCE_CONCEPTINSIGHT_URL" : "https://gateway.watsonplatform.net/concept-insights/api"
 }

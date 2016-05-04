@@ -8,10 +8,11 @@ var conceptController = require('./conceptInsight.controller');
 // try it out by running the app and visit localhost:port/api/testaccount
 module.exports = function(routes){
 	routes.get('/testaccount', function(req,res){
-		console.log(res);
-		conceptController.testAccount()
-		.catch(responseHandler.sendErrorResponse(res)); 	//sends error i presume
+		conceptController.testAccount();
 	});
 
 	return routes;
 }
+
+// https://watson-api-explorer.mybluemix.net/apis/concept-insights-v2
+// http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/doc/concept-insights/
