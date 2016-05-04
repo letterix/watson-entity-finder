@@ -7,16 +7,16 @@ var conceptController = require('./conceptInsight.controller');
 // test the connectivity to the bluemix service
 // try it out by running the app and visit localhost:port/api/testaccount
 module.exports = function(routes){
-	routes.get('/:testaccount', function(req,res){
+	routes.get('/testaccount', function(req,res){
 		conceptController.testAccount()
-		.then(responseHandler(sendJsonResponse(response)))
-		.catch(responseHandler.sendErrorResponse(response));
+		.then(responseHandler(sendJsonResponse(res)))
+		.catch(responseHandler.sendErrorResponse(res));
 	});
 
-	routes.get('/:test', function(req,res){
+	routes.get('/test', function(req,res){
 		conceptController.testFunction()
-		.then(responseHandler(sendJsonResponse(response)))
-		.catch(responseHandler.sendErrorResponse(response));
+		.then(responseHandler(sendJsonResponse(res)))
+		.catch(responseHandler.sendErrorResponse(res));
 	});
 
 	return routes;
