@@ -9,7 +9,6 @@ var alchemyController = require('./alchemy.controller');
 
 module.exports = function(routes) {
 
-    // This just a hard coded test
     routes.get('/:url', function(request, response) {
         alchemyController.getEntitiesByUrl(request.params.url)
             .then(responseHandler.sendJsonResponse(response))

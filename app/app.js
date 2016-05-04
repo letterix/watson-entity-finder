@@ -17,6 +17,8 @@ var scopusRoutes = require('./chain/scopus/scopus.routes')(express.Router());
 var pubmedRoutes = require('./chain/pubmed/pubmed.routes')(express.Router());
 var scidirRoutes = require('./chain/scidir/scidir.routes')(express.Router());
 var searchRoutes = require('./chain/search/search.routes')(express.Router());
+var tradeoffRoutes = require('./chain/tradeoff-analytics/tradeoff.routes')(express.Router());
+var msacademicRoutes = require('./chain/msacademic/msacademic.routes')(express.Router());
 
 // create a new express server
 var app = express();
@@ -48,6 +50,8 @@ app.use('/api/scopus', scopusRoutes);
 app.use('/api/pubmed', pubmedRoutes);
 app.use('/api/scidir', scidirRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/tradeoff-analytics', tradeoffRoutes);
+app.use('/api/msacademic', msacademicRoutes);
 
 // serve the files out of ./public as our main files
 app.use(express.static(__dirname + '/public'));
