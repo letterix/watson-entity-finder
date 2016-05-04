@@ -8,7 +8,8 @@ var config  = require('config');
 
 // test the connectivity to the bluemix concept insight service
 exports.testAccount = function(){
-	return 'testaccount';//conceptInsightResource.testAccount();
+	console.log('testaccount');
+	conceptInsightResource.testAccount();
 }
 
 exports.testFunction = function(){

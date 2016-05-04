@@ -15,8 +15,7 @@ var conceptInsight = watson.concept_insights({
 	version: 'v2'
 });
 
-// return: error information or account information
-exports.testAccount = function(params){
+exports.testAccount = function(){
 	conceptInsight.accounts.getAccountsInfo({}, function(err,res){
 		if(err){
 			console.log(err);
@@ -27,20 +26,8 @@ exports.testAccount = function(params){
 			
 		}
 	});
-	
-	var options = {};
-	return utils.setUrlParamsForOptions(params, options)
-		.then(request)
-		.then(responseHandler.parseGet)
-		.catch(errorHandler.throwResourceError);
 }
 
 exports.test = function(params){
 	console.log('test!');
-
-	var options = {};
-	return utils.setUrlParamsForOptions(params, options)
-		.then(request)
-		.then(responseHandler.parseGet)
-		.catch(errorHandler.throwResourceError);
 }
