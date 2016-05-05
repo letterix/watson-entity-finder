@@ -11,6 +11,11 @@ module.exports = function(routes){
 		conceptController.testAccount();
 	});
 
+	routes.get('/getConceptSearch', function(req,res){
+		var tmpsearch = 'cognitive';
+		conceptController.getConceptSearch(tmpsearch);
+	})
+
 	return routes;
 }
 

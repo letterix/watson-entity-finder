@@ -12,7 +12,7 @@ exports.testAccount = function(){
 	conceptInsightResource.testAccount();
 }
 
-exports.testFunction = function(){
-	console.log('test function. !testing!')
-	return conceptInsightResource.testFunction;
+exports.getConceptSearch = function(param){
+	console.log('Fetching graphs');
+	conceptInsightResource.getConceptSearch(param);
 }

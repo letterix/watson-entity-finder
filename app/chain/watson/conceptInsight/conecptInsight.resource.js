@@ -25,12 +25,26 @@ exports.testAccount = function(){
 		} else {
 			console.log('success!');
 			var accInfo = JSON.stringify(res,null,2); 
-			console.log(accInfo);
-			
+			console.log(accInfo);	
 		}
 	});
 }
 
-exports.test = function(params){
-	console.log('test!');
+exports.getConceptSearch = function(searchWord){
+	console.log('getting concept search');
+	var tmpParam = {
+		graph: '/graphs/wikipedia/en-latest',
+		query: searchWord,
+		prefix: true,
+		limit: 2,
+		concept_fields: '{"link":1}'
+	}
+	conceptInsight.graphs.searchConceptByLabel(tmpParam, function(err,res){
+		if(err){
+			console.log(err);
+		} 
+		else {
+			console.log(JSON.stringify(res, null, 2));
+		}
+	});
 }
