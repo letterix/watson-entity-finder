@@ -17,6 +17,9 @@
     "RESOURCE_MSACADEMIC_SEARCH_URL" : "http://api.projectoxford.ai/academic/v1.0/evaluate",
     "RESOURCE_MSACADEMIC_API_KEY" : "369cba5694714fd7baef564ee0b2cb2f",
     "RESOURCE_MSACADEMIC_NO_OF_ARTICLES_RETURNED" : "500",
-    "RESOURCE_MSACADEMIC_SEARCH_RETURN_PARAMETERS" : "Ti,CC,AA.AuN,AA.AuId,AA.AfN,J.JN,E"
-
+    "RESOURCE_MSACADEMIC_SEARCH_RETURN_PARAMETERS" : "Ti,CC,AA.AuN,AA.AuId,AA.AfN,J.JN,E",
+    "RESOURCE_PUBMED_SEARCH_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "RESOURCE_PUBMED_SUMMARY_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+    "RESOURCE_PUBMED_FETCH_URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 }
+
