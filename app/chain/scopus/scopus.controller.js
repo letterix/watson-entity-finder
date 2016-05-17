@@ -168,6 +168,7 @@ function loopSearcher(query) {
         return new Promise(function(resolve) {
 
             var count = Math.ceil(res['search-results']['opensearch:totalResults']/100);
+            count = count > 5 ? 5 : count; // Limit the number of results (damnit scopus!)
             console.log("Available results: " + res['search-results']['opensearch:totalResults']);
 
             var resultList = [];
@@ -252,6 +253,7 @@ function getFullAuthorObjects(authors) {
                     .then(exports.retrieveAuthorByCsv)
                     .map(utils.moveNestedObjFieldsToParent('coredata'))
                     .map(utils.moveNestedObjFieldsToParent('author-profile'))
+                    .filter(utils.undefinedFieldFilter('preferred-name'))
                     .map(setNameForAuthor)
                     .map(pruneAuthorFields)
                     .then(matchAuthorObjects(authorsCut))
@@ -287,7 +289,7 @@ function matchAuthorObjects(oldAuthors) {
                     for (var i = 0; i < newAuthors.length; i++) {
                         for (var j = innerIndex; j < oldAuthors.length; j++) {
                             if (newAuthors[i]['dc:identifier'] === 'AUTHOR_ID:'+oldAuthors[j]['id']) {
-                                newAuthors[i] = utils.moveFieldsFromObj(oldAuthors[i], newAuthors[j]);
+                                newAuthors[i] = utils.moveFieldsFromObj(oldAuthors[j], newAuthors[i]);
                                 innerIndex = j+1;
                                 break;
                             };

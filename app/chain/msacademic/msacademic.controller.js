@@ -19,7 +19,7 @@ var searchReturnParameters = config.RESOURCE_MSACADEMIC_SEARCH_RETURN_PARAMETERS
 exports.search = function(query, numRes) {
     var params = {
         'model' : 'latest',
-        'count' : 500, //getting 500 articles as default
+        'count' : noOfArticlesReturned, //getting 500 articles as default
         'attributes' : searchReturnParameters,//Getting titles for now
         'expr': 'AND(Y>2010,' + "W='" + query + "')"
     };
