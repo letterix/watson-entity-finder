@@ -3,7 +3,8 @@
 	"version": "0.0.1",
 	"description": "A sample nodejs app for Bluemix",
 	"scripts": {
-		"start": "NODE_ENV=production node app/app.js"
+		"start": "NODE_PATH=. PORT=6001 node app/app.js",
+    	"startwin": "set NODE_PATH=. PORT=6001 && node app/app.js"
 	},
 	"dependencies": {
 		"express": "4.12.x",
